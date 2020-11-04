@@ -1,0 +1,20 @@
+---
+production: &default
+  port: 3010
+  AdminUser:
+    usuario: adm1n1strad0r@
+    dominio: email.com
+    clave: 4dmInI$trad0R
+stage: &stage
+    <<: *default
+test: &latest
+    <<: *stage
+development:
+    <<: *latest
+    CATALOGOS:
+      TIPO_SUPER_ADMINISTRADOR: TPS_SUPER_ADMIN
+    DataBase:
+      Servidor: localhost
+      Nombre: plataforma
+      Usuario: usuario
+      Password: password
