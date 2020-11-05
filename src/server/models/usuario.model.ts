@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import cryptojs from "crypto-js";
 import { ModelOptions, prop, Ref } from "@typegoose/typegoose";
 import { Types } from "mongoose";
 import { AuditoriaModel } from "./comun/auditoria.model";
@@ -33,22 +33,19 @@ export class UsuarioModel {
 
 
     public static encryptPassword = async(clave: string): Promise<string> => {
-
-        let iv = crypto.randomBytes(IV_LENGTH);
-        let cipher = crypto.createCipheriv(ENCRYPT_ALGORITHM, Buffer.from(ENCRYPT_KEY), iv);
-        let encrypted = cipher.update(clave);
-        encrypted = Buffer.concat([encrypted, cipher.final()]);
-        return encrypted.toString('hex');
+        // Encrypt
+        let ciphertext: string = cryptojs.AES.encrypt(clave, ENCRYPT_KEY).toString();
+        // return...
+        return ciphertext;
     }
 
     public static decryptPassword = async function(clave: string): Promise<string> {
         
-        let iv = Buffer.from(clave, 'hex');
-        let encryptedText = Buffer.from(clave, 'hex');
-        let decipher = crypto.createDecipheriv(ENCRYPT_ALGORITHM, Buffer.from(ENCRYPT_KEY), iv);
-        let decrypted = decipher.update(encryptedText);
-        decrypted = Buffer.concat([decrypted, decipher.final()]);
-        return decrypted.toString();
+        // Decrypt
+        var bytes  = cryptojs.AES.decrypt(clave, ENCRYPT_KEY);
+        var originalText = bytes.toString(cryptojs.enc.Utf8);
+        // return...
+        return originalText;
 
     }
 

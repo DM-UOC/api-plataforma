@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import jsw from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { getModelForClass } from '@typegoose/typegoose';
 
 import { UsuarioModel } from '../../models/usuario.model';
@@ -11,9 +11,84 @@ export class SeguridadService {
 
     private catalgoService: CatalgoService = new CatalgoService()
 
+    private async obtenerClave(clave: string) {
+        try {
+            // encriptamos la clave para luego compararla...
+            return await UsuarioModel.decryptPassword(clave);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    private async retornaSelectUsuario(usuario: string, estado: boolean = true) {
+        // return...
+        return await getModelForClass(UsuarioModel).aggregate([
+            {
+                $match: {
+                    "usuario": usuario,
+                    "auditoria.estado": estado
+                }
+            },  {
+                $graphLookup: {
+                    from: "catalogos",
+                    startWith: "$catalogo_id",
+                    connectFromField: "_id",
+                    connectToField: "_id",
+                    as: "tipo_perfil"
+                }
+            }            
+        ])
+    }
+
+    private async generaTokenSistema(infoUsuario: any) {
+        try {
+            // payload...
+            const payload = {
+                usuario: infoUsuario.usuario,
+                nombres: `${infoUsuario.nombre} ${infoUsuario.apellido}`,
+                perfil_id: infoUsuario.tipo_perfil[0].valor1,
+                perfil_descripcion: infoUsuario.tipo_perfil[0].descripcion
+            };
+            //return token...
+            return jwt.sign(payload, global.$config.security.secret, {
+                expiresIn: eval(global.$config.security.maxAge)
+            });            
+        } catch (error) {
+            throw error;
+        }
+    }
+    
+    private async verificaCrendenciales(usuario: string, clave: string) {
+        try {
+            // buscamos solamente el usuario...
+            let result: any = await this.retornaSelectUsuario(usuario);
+            // verificamos si existe el usuario...
+            if(result.length > 0) {
+                // existe el usuario...
+                // verificamos si la clave son iguales...
+                result[0].clave = await this.obtenerClave(result[0].clave);
+                // verifica...
+                if(result[0].clave ==! clave) {
+                    // existe el usuario...
+                    result = await this.generaTokenSistema(result[0]);
+                }
+            }
+            // return...
+            return result;            
+        } catch (error) {
+            throw error;
+        }
+    }
+
     public async loginUsuario(req: Request, estado: boolean = true) {
         try {
-            // verificamos si existe el usuario...
+            
+            // recogemos parámetros...
+            let { usuario, clave } = req.query as any;
+            // verificamos si existe...
+            const result: any = await this.verificaCrendenciales(usuario, clave);
+            // return...
+            return result;
         } catch (error) {
             throw error;
         }
@@ -23,8 +98,8 @@ export class SeguridadService {
     private async insertaUsuarioAdministrador(usuarioModel: UsuarioModel) {
         try {
             // configuración...
-            const { AdminUser } = global.$config;
-            const { usuario, dominio, clave } = AdminUser;
+            const { adminUser } = global.$config;
+            const { usuario, dominio, clave } = adminUser;
             // seteo usuario administrador...
             usuarioModel.nombre = `${usuario}`;
             usuarioModel.apellido = usuario;
@@ -43,10 +118,10 @@ export class SeguridadService {
     public async verificaUsuarioInicial() {
         try {
             // configuración...
-            const { CATALOGOS } = global.$config;
-            const { TIPO_SUPER_ADMINISTRADOR } = CATALOGOS;
+            const { catalogos } = global.$config;
+            const { tipoSuperAdministrador } = catalogos;
             // retorna catalog tipo administrador...
-            const catalogo = await this.catalgoService.retornaCatalogPorCodigo(TIPO_SUPER_ADMINISTRADOR);
+            const catalogo = await this.catalgoService.retornaCatalogPorCodigo(tipoSuperAdministrador);
             // consulta el usuario...
             let userAdmin: UsuarioModel = {
                 catalogo_id: catalogo?._id,
