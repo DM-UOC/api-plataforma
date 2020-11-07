@@ -22,10 +22,10 @@ export class UsuarioModel {
     @prop({ required: true, default: '' })
     public apellido?: string
 
-    @prop({ required: true, unique: true })
+    @prop({ required: true, unique: true, lowercase: true, trim: true })
     public usuario!: string;
 
-    @prop({ required: true })
+    @prop({ required: true, trim: true })
     public clave!: string;
 
     @prop({ type: AuditoriaModel, _id: false })

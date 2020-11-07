@@ -12,7 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@egodigital/express-controllers": "^6.2.0",
     "@typegoose/typegoose": "^7.4.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
@@ -24,6 +23,8 @@
     "moment": "^2.29.1",
     "mongoose": "^5.10.11",
     "morgan": "^1.10.0",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
     "pm2": "^4.5.0",
     "typescript-rest": "^3.0.2"
   },

@@ -1,6 +1,20 @@
-import { ModelOptions, prop } from "@typegoose/typegoose";
+import { ModelOptions, prop, Ref } from "@typegoose/typegoose";
 import { Types } from "mongoose";
 import { AuditoriaModel } from "./comun/auditoria.model";
+
+class Menu {
+
+    @prop({ required: true, trim: true })
+    public icono!: string;
+
+    @prop({ required: true, trim: true })
+    public descripcion!: string;
+
+
+    @prop({ required: true, trim: true })
+    public pagina!: string;
+
+}
 
 @ModelOptions({
     schemaOptions: {
@@ -8,6 +22,9 @@ import { AuditoriaModel } from "./comun/auditoria.model";
     }
 })
 export class CatalogoModel {
+
+    @prop({ required: true })
+    public _id!: Types.ObjectId;
 
     @prop({ unique: true })
     public codigo!: string;
@@ -33,6 +50,9 @@ export class CatalogoModel {
 
     @prop({ default: '' })
     public cadena3!: number;
+
+    @prop()
+    public arreglo1!: Menu[];
 
     @prop({ type: () => AuditoriaModel })
     public auditoria!: AuditoriaModel;

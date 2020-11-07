@@ -5,6 +5,7 @@ import { getModelForClass } from '@typegoose/typegoose';
 import { UsuarioModel } from '../../models/usuario.model';
 import { CatalgoService } from '../catalogos/catalogo.service';
 import { Globals } from '../../../libs/globals';
+import { CatalogoModel } from '../../models/catalogo.model';
 declare const global: Globals;
 
 export class SeguridadService {
@@ -60,6 +61,8 @@ export class SeguridadService {
     
     private async verificaCrendenciales(usuario: string, clave: string) {
         try {
+            // mensaje de usuario incorrectos...
+            const { correcto, incorrecto } = global.$config.mensajes.login;
             // buscamos solamente el usuario...
             let result: any = await this.retornaSelectUsuario(usuario);
             // verificamos si existe el usuario...
@@ -68,10 +71,26 @@ export class SeguridadService {
                 // verificamos si la clave son iguales...
                 result[0].clave = await this.obtenerClave(result[0].clave);
                 // verifica...
-                if(result[0].clave ==! clave) {
-                    // existe el usuario...
-                    result = await this.generaTokenSistema(result[0]);
+                if(result[0].clave === clave) {
+                    // existe el usuario, se genera el token...
+                    let token = await this.generaTokenSistema(result[0]);
+                    // configurando la variable...
+                    result = {
+                        message: correcto.exito,
+                        token
+                    };
                 }
+                else {
+                    throw {
+                        message: incorrecto.clave
+                    };
+                }
+            }
+            else {
+                // no existe el usuario, enviamos null...
+                throw {
+                    message: incorrecto.usuario
+                };
             }
             // return...
             return result;            
@@ -121,7 +140,7 @@ export class SeguridadService {
             const { catalogos } = global.$config;
             const { tipoSuperAdministrador } = catalogos;
             // retorna catalog tipo administrador...
-            const catalogo = await this.catalgoService.retornaCatalogPorCodigo(tipoSuperAdministrador);
+            const catalogo: CatalogoModel = await this.catalgoService.retornaCatalogPorCodigo(tipoSuperAdministrador);
             // consulta el usuario...
             let userAdmin: UsuarioModel = {
                 catalogo_id: catalogo?._id,
@@ -144,4 +163,18 @@ export class SeguridadService {
         }
     }
 
+    public async retornaUsuarioMenu(req: Request) {
+        try {
+            const { codigo } = req.query;
+            // filtros...
+            const filtro: object = {
+                codigo
+            };
+            // consulta por codigo...
+            return <CatalogoModel> await getModelForClass(CatalogoModel).findOne(filtro);                
+        } catch (error) {
+            throw error;            
+        }        
+    }
+    
 }

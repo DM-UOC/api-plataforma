@@ -9,7 +9,7 @@ export class CatalgoService {
                 codigo
             };
             // consulta por codigo...
-            return await getModelForClass(CatalogoModel).findOne(filtro);                
+            return <CatalogoModel> await getModelForClass(CatalogoModel).findOne(filtro);                
         } catch (error) {
             throw error;            
         }
