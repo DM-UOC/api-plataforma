@@ -48,7 +48,8 @@ export class SeguridadService {
                 usuario: infoUsuario.usuario,
                 nombres: `${infoUsuario.nombre} ${infoUsuario.apellido}`,
                 perfil_id: infoUsuario.tipo_perfil[0].valor1,
-                perfil_descripcion: infoUsuario.tipo_perfil[0].descripcion
+                perfil_descripcion: infoUsuario.tipo_perfil[0].descripcion,
+                perfil_menu: infoUsuario.tipo_perfil[0].cadena1
             };
             //return token...
             return jwt.sign(payload, global.$config.security.secret, {
@@ -59,12 +60,12 @@ export class SeguridadService {
         }
     }
     
-    private async verificaCrendenciales(usuario: string, clave: string) {
+    private async verificaCrendenciales(usuario: string, clave: string, estado: boolean = false) {
         try {
             // mensaje de usuario incorrectos...
             const { correcto, incorrecto } = global.$config.mensajes.login;
             // buscamos solamente el usuario...
-            let result: any = await this.retornaSelectUsuario(usuario);
+            let result: any = await this.retornaSelectUsuario(usuario, estado);
             // verificamos si existe el usuario...
             if(result.length > 0) {
                 // existe el usuario...
@@ -101,11 +102,10 @@ export class SeguridadService {
 
     public async loginUsuario(req: Request, estado: boolean = true) {
         try {
-            
             // recogemos parámetros...
             let { usuario, clave } = req.query as any;
             // verificamos si existe...
-            const result: any = await this.verificaCrendenciales(usuario, clave);
+            const result: any = await this.verificaCrendenciales(usuario, clave, estado);
             // return...
             return result;
         } catch (error) {
@@ -163,7 +163,7 @@ export class SeguridadService {
         }
     }
 
-    public async retornaUsuarioMenu(req: Request) {
+    public async retornaMenuUsuario(req: Request) {
         try {
             const { codigo } = req.query;
             // filtros...

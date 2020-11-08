@@ -31,4 +31,16 @@ export class SeguridadController {
         }
     }
 
+    @GET
+    @Path("menu")
+    public async retornaMenuUsuario(@ContextRequest req: Request, @ContextResponse res: Response) {
+        try {
+            const result: any = await this.seguridadService.retornaMenuUsuario(req);
+            // response...
+            res.status(200).json(result);            
+        } catch (error) {
+            res.status(400).json(error);
+        }
+    }
+
 }
