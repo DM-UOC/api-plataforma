@@ -8,6 +8,13 @@ production: &default
     usuario: adm1n1strad0r@
     dominio: email.com
     clave: 4dmInI$trad0R
+  catalogos:
+    tipoAdministrador: TPS_ADMIN
+  dataBase:
+    servidor: localhost
+    nombre: plataforma
+    usuario: usuario
+    password: password    
   mensajes:
     login:
       incorrecto:
@@ -22,7 +29,7 @@ test: &latest
 development:
     <<: *latest
     catalogos:
-      tipoSuperAdministrador: TPS_SUPER_ADMIN
+      tipoAdministrador: TPS_ADMIN
     dataBase:
       servidor: localhost
       nombre: plataforma

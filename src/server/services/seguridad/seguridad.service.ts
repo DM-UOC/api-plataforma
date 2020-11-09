@@ -32,12 +32,12 @@ export class SeguridadService {
             },  {
                 $graphLookup: {
                     from: "catalogos",
-                    startWith: "$catalogo_id",
+                    startWith: "$perfiles.catalogo_id",
                     connectFromField: "_id",
                     connectToField: "_id",
                     as: "tipo_perfil"
                 }
-            }            
+            }
         ])
     }
 
@@ -47,7 +47,7 @@ export class SeguridadService {
             const payload = {
                 usuario: infoUsuario.usuario,
                 nombres: `${infoUsuario.nombre} ${infoUsuario.apellido}`,
-                perfil_id: infoUsuario.tipo_perfil[0].valor1,
+                codigo_perfil: infoUsuario.tipo_perfil[0].valor1,
                 perfil_descripcion: infoUsuario.tipo_perfil[0].descripcion,
                 perfil_menu: infoUsuario.tipo_perfil[0].cadena1
             };
@@ -138,18 +138,24 @@ export class SeguridadService {
         try {
             // configuración...
             const { catalogos } = global.$config;
-            const { tipoSuperAdministrador } = catalogos;
+            const { tipoAdministrador } = catalogos;
             // retorna catalog tipo administrador...
-            const catalogo: CatalogoModel = await this.catalgoService.retornaCatalogPorCodigo(tipoSuperAdministrador);
+            const catalogo: CatalogoModel = await this.catalgoService.retornaCatalogPorCodigo(tipoAdministrador);
             // consulta el usuario...
             let userAdmin: UsuarioModel = {
-                catalogo_id: catalogo?._id,
+                perfiles: [
+                    {
+                        catalogo_id: catalogo?._id,
+                        descripcion: catalogo.descripcion,
+                        codigo_perfil: catalogo.valor1
+                    }
+                ],
                 nombre: '',
                 usuario: '',
                 clave: ''
             };
             let result = await getModelForClass(UsuarioModel).findOne({
-                catalogo_id: catalogo?._id
+                "perfiles.catalogo_id": catalogo?._id
             });
             // verifica usuario...
             if(result === null) {

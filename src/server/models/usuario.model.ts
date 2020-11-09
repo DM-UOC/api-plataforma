@@ -6,15 +6,25 @@ import { AuditoriaModel } from "./comun/auditoria.model";
 const ENCRYPT_ALGORITHM = process.env.ENCRYPT_ALGORITHM || '', ENCRYPT_KEY = process.env.ENCRYPT_KEY || '';
 const IV_LENGTH = 16; // For AES, this is always 16
 
+class Perfiles {
+
+    @prop({ required: true, default: '' })
+    catalogo_id?: Types.ObjectId;
+
+    @prop({ required: true, default: '' })
+    descripcion?: string;
+
+    @prop({ required: true })
+    codigo_perfil?: number;
+
+}
+
 @ModelOptions({
     schemaOptions: {
         collection: 'usuarios'
     }
 })
 export class UsuarioModel {
-
-    @prop({  required: true })
-    public catalogo_id!: Types.ObjectId;
 
     @prop({ required: true, default: '' })
     public nombre?: string
@@ -23,14 +33,16 @@ export class UsuarioModel {
     public apellido?: string
 
     @prop({ required: true, unique: true, lowercase: true, trim: true })
-    public usuario!: string;
+    public usuario?: string;
 
     @prop({ required: true, trim: true })
-    public clave!: string;
+    public clave?: string;
 
+    @prop({  required: true, type: Perfiles, _id: false })
+    public perfiles?: Perfiles[];
+    
     @prop({ type: AuditoriaModel, _id: false })
     public auditoria?: AuditoriaModel;
-
 
     public static encryptPassword = async(clave: string): Promise<string> => {
         // Encrypt
