@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import {Path, GET, ContextRequest, ContextResponse} from "typescript-rest";
-import { UsuarioModel } from '../models/usuario.model';
-import { ProfesorService } from '../services/perfiles/profesor.service';
+import { Path, GET, ContextRequest, ContextResponse, POST, PUT} from "typescript-rest";
+import { UsuarioModel } from '../../models/usuario.model';
+import { ProfesorService } from '../../services/perfiles/profesor.service';
 
 @Path('/usuario')
 export class UsuarioController {

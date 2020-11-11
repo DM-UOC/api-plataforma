@@ -5,7 +5,7 @@ export class Controllers {
     constructor(app: any) {
         try {
             // inserción de controladores...
-            Server.loadServices(app, `${__dirname}/*`); 
+            Server.loadServices(app, [`${__dirname}/*/*`])
         } catch (error) {
             throw error;
         }

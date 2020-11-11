@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import {Path, GET, ContextRequest, ContextResponse} from "typescript-rest";
-import { SeguridadService } from '../services/seguridad/seguridad.service';
+import { SeguridadService } from '../../services/seguridad/seguridad.service';
 
 @Path('/seguridad')
 export class SeguridadController {

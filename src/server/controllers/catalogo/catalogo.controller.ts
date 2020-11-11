@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import {Path, GET, ContextRequest, ContextResponse} from "typescript-rest";
-import { CatalogoModel } from '../models/catalogo.model';
-import { CatalgoService } from '../services/catalogos/catalogo.service';
+import { CatalogoModel } from '../../models/catalogo.model';
+import { CatalgoService } from '../../services/catalogos/catalogo.service';
 
 @Path('/catalogo')
 export class CatalogoController {
@@ -15,8 +15,7 @@ export class CatalogoController {
             const { codigo } = req.query as any;
             // query...
             const result: CatalogoModel = await this.catalgoService.retornaCatalogPorCodigo(codigo);
-            console.log(result.arreglo1[0]);
-            // response...
+                // response...
             res.status(200).json(result);
         } catch (error) {
             res.status(400).json(error);
