@@ -1,0 +1,37 @@
+---
+production: &default
+  port: 3010
+  security:
+    secret: -:vE?8f!)8XZ!T{A,beK%6@Y2-y:/"f)g!Pn\!(s\?);^@T,<w%M#e>]jf=y>aB"6$]~sf?XH$}?b$T;CttdH`m)V668$EtZwTeFK9qvdL=4D>]dn%@\9>ym;A2?ZRF?
+    maxAge: 60 * 60 # 60 minutos de duración # 60 * 60 * 24 <-> 24 horas de duración...
+  adminUser:
+    usuario: adm1n1strad0r@
+    dominio: email.com
+    clave: 4dmInI$trad0R
+  catalogos:
+    tipoAdministrador: TPS_ADMIN
+  dataBase:
+    servidor: localhost
+    nombre: plataforma
+    usuario: usuario
+    password: password    
+  mensajes:
+    login:
+      incorrecto:
+        usuario: El usuario no está registrado
+        clave: La clave ingresada es incorrecta
+      correcto:
+        exito: Éxito
+stage: &stage
+    <<: *default
+test: &latest
+    <<: *stage
+development:
+    <<: *latest
+    catalogos:
+      tipoAdministrador: TPS_ADMIN
+    dataBase:
+      servidor: localhost
+      nombre: plataforma
+      usuario: usuario
+      password: password

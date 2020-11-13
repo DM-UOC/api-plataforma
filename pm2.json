@@ -1,0 +1,23 @@
+{
+    "apps": [
+        {
+            "name": "api-plataforma",
+            "script": "npm",
+            "args": "run start:dev",
+            "ignore-watch": [
+                "./node_modules"
+            ],
+            "watch_options": {
+                "usePolling": true
+            },
+            "max_memory_restart": "200M",
+            "error_file": "./logs/app-error.log",
+            "out_file": "./logs/app-out.log",
+            "env": {
+                "NODE_ENV": "development",
+                "ENCRYPT_ALGORITHM": "aes-256-cbc",
+                "ENCRYPT_KEY": "*key_desarrollo_plataforma_2020*"
+            }
+        }
+    ]
+}
