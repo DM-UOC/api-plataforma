@@ -3,7 +3,7 @@
         {
             "name": "api-plataforma",
             "script": "npm",
-            "args": "run start:dev",
+            "args": "run start:debug",
             "ignore-watch": [
                 "./node_modules"
             ],

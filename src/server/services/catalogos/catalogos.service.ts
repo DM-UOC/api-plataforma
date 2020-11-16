@@ -10,13 +10,13 @@ export class CatalogosService {
         @InjectModel(CatalogoModel) private readonly catalogoModel: ReturnModelType<typeof CatalogoModel>
     ) {}
 
-    public async retornaCatalogPorCodigo(codigo: string) {
+    public async retornaCatalogPorCodigo(codigo: any): Promise<CatalogoModel> {
         try {
             const filtro: object = {
                 codigo
             };
             // consulta por codigo...
-            return <CatalogoModel> await this.catalogoModel.findOne(filtro);
+            return await this.catalogoModel.findOne(filtro);
         } catch (error) {
             throw error;            
         }

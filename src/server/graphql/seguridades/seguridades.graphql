@@ -1,0 +1,14 @@
+type Administrador {
+
+    _id: String!
+    nombre: String
+    apellido: String
+    usuario: String
+    clave: String
+
+}
+
+type Query {
+    hello: String!
+    administrador: Administrador 
+}

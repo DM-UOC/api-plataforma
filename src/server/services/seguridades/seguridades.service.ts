@@ -7,6 +7,7 @@ import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
 import { Globals } from "../../../../libs/config/globals";
 import { CatalogosService } from '../catalogos/catalogos.service';
 import { Request } from 'express';
+import { Types } from 'mongoose';
 declare const global: Globals;
 
 @Injectable()
@@ -113,8 +114,10 @@ export class SeguridadesService {
             // seteo usuario administrador...
             usuarioModel.nombre = `${usuario}`;
             usuarioModel.apellido = usuario;
+            usuarioModel.nombre_completo = `${usuario}`;
             usuarioModel.usuario = `${usuario}${dominio}`;
             usuarioModel.clave = await this.usuarioModel.encryptPassword(clave);
+            usuarioModel.correo = `${usuario}${dominio}`;
             usuarioModel.auditoria = {
                 estado: true
             }
@@ -138,21 +141,28 @@ export class SeguridadesService {
                     {
                         catalogo_id: catalogo?._id,
                         descripcion: catalogo.descripcion,
-                        codigo_perfil: catalogo.valor1
+                        codigo_perfil: catalogo.valor1,
+                        super_usuario: true
                     }
                 ],
                 nombre: '',
                 usuario: '',
                 clave: ''
             };
+            // get Id...
+            const catalogo_id: string = catalogo?._id.toString();
             // query...
             let result = await this.usuarioModel.findOne({
-                "perfiles.catalogo_id": catalogo?._id
+                "perfiles.catalogo_id": Types.ObjectId(catalogo_id)
             });
             // verifica usuario...
             if(result === null) {
                 // ingresando el usuario administrador...
                 userAdmin = await this.insertaUsuarioAdministrador(userAdmin); 
+            }
+            else {
+                // actualizamos el objeto...
+                userAdmin = result;
             }
             // return...
             return userAdmin;
@@ -173,5 +183,15 @@ export class SeguridadesService {
             throw error;
         }
     }
-    
+
+    public async retornaMenuUsuario(req: Request) {
+        try {
+            const { codigo } = req.query;
+            // consulta por codigo...
+            return await this.catalogosService.retornaCatalogPorCodigo(codigo);                
+        } catch (error) {
+            throw error;            
+        }        
+    }
+
 }

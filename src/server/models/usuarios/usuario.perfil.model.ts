@@ -12,4 +12,7 @@ export class UsuarioPerfilModel {
     @prop({ required: true })
     codigo_perfil?: number;
 
+    @prop({ required: true, default: false })
+    super_usuario?: boolean;
+    
 }

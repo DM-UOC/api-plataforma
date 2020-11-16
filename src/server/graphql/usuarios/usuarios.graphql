@@ -1,0 +1,14 @@
+type Usuarios {
+
+    _id: String!
+    nombre: String!
+    apellido: String!
+    usuario: String!
+    clave: String!
+
+}
+
+type Query {
+    hello: String!
+    usuarios: [Usuarios]!    
+}

@@ -3,6 +3,7 @@ import { prop } from "@typegoose/typegoose";
 import { Types } from "mongoose";
 import { AuditoriaModel } from "../comuns/auditoria.model";
 import { UsuarioPerfilModel } from "./usuario.perfil.model";
+import { UsuarioValidacionModel } from "./usuario.validacion.model";
 
 // encrypt keys...
 const ENCRYPT_ALGORITHM = process.env.ENCRYPT_ALGORITHM || '', ENCRYPT_KEY = process.env.ENCRYPT_KEY || '';
@@ -13,10 +14,13 @@ export class UsuarioModel {
     public readonly _id?: Types.ObjectId;
     
     @prop({ required: true, default: '' })
-    public nombre?: string
+    public nombre?: string;
 
     @prop({ required: true, default: '' })
-    public apellido?: string
+    public apellido?: string;
+
+    @prop({ required: true, default: '' })
+    public nombre_completo?: string;
 
     @prop({ required: true, unique: true, lowercase: true, trim: true })
     public usuario?: string;
@@ -24,11 +28,25 @@ export class UsuarioModel {
     @prop({ required: true, trim: true })
     public clave?: string;
 
-    @prop({  required: true, type: UsuarioPerfilModel, _id: false })
+    @prop({ required: true, unique: true, lowercase: true, trim: true })
+    public correo?: string;
+
+    @prop({ default: { data: null, contentType: null }})
+    public usuario_imagen?: {
+        data: Buffer,
+        contentType: string
+    };
+
+    @prop({ required: true, type: UsuarioValidacionModel, _id: false })
+    public validaciones?: UsuarioValidacionModel[];
+
+    @prop({ required: true, type: UsuarioPerfilModel, _id: false })
     public perfiles?: UsuarioPerfilModel[];
     
     @prop({ type: AuditoriaModel, _id: false })
     public auditoria?: AuditoriaModel;
+
+    public imagen_url?: string;
 
     public static encryptPassword = async(clave: string): Promise<string> => {
         // Encrypt
