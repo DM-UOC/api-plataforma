@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Req, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Req, UseInterceptors, UploadedFile, Res, HttpStatus } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
@@ -11,15 +11,31 @@ export class AdministradoresController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  create(@UploadedFile() file, @Body() usuarioModel: UsuarioModel) {
-    
-    return "creando el usuario...";
-    //return this.administradoresService.create(file, usuarioModel);
+  async create(@UploadedFile() file, @Body() body, @Res() res, @Req() req) {
+    try {
+      const result = await this.administradoresService.create(file, body);
+      return res.status(HttpStatus.CREATED).json(result);
+    } catch (error) {
+        throw error;
+    }
   }
 
   @Get()
-  public async findAll() {
-    return await this.administradoresService.findAll();
+  public async findAll(@Req() req) {
+    return await this.administradoresService.findAll(req);
+  }
+
+  @Get('profile/:id')
+  public async findOneProfile(@Param('id') id: string, @Res() res) {
+    try {
+      const usuario: UsuarioModel = await this.administradoresService.findOneProfile(id);
+      // content - type...
+      res.setHeader('Content-Type', usuario.usuario_imagen.contentType);
+      // retornando la imagen...
+      res.status(HttpStatus.OK).send(usuario.usuario_imagen.data.buffer);      
+    } catch (error) {
+      res.status(400).json(error);
+    }
   }
 
   @Get(':id')

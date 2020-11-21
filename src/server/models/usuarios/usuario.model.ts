@@ -46,6 +46,7 @@ export class UsuarioModel {
     @prop({ type: AuditoriaModel, _id: false })
     public auditoria?: AuditoriaModel;
 
+    @prop({ default: '' })
     public imagen_url?: string;
 
     public static encryptPassword = async(clave: string): Promise<string> => {
@@ -56,13 +57,11 @@ export class UsuarioModel {
     }
 
     public static decryptPassword = async function(clave: string): Promise<string> {
-        
         // Decrypt
         var bytes  = cryptojs.AES.decrypt(clave, ENCRYPT_KEY);
         var originalText = bytes.toString(cryptojs.enc.Utf8);
         // return...
         return originalText;
-
     }
 
 }

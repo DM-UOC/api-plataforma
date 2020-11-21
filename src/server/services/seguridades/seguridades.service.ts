@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import moment from "moment";
 import { Injectable } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
@@ -192,6 +193,47 @@ export class SeguridadesService {
         } catch (error) {
             throw error;            
         }        
+    }
+
+    private async existeUsuarioRedSocial(usuarioModel: UsuarioModel) {
+        // filtros...
+        const filtro = {
+            correo: usuarioModel.correo,
+            "validaciones.es_red_social": true,
+            "validaciones.esta_validado": true,
+            "validaciones.correo_validado": true,
+        }
+        // consultamos...
+        return await this.usuarioModel.findOne(filtro);
+    }
+
+    public async verificaUsuarioRedSocial(usuarioModel: UsuarioModel) {
+        try {
+            // consulta el usuario...
+            usuarioModel.validaciones = [
+                {
+                    es_red_social: true,
+                    esta_validado: false,
+                    correo_validado: false
+                }
+            ];
+            let result = await this.existeUsuarioRedSocial(usuarioModel);
+            /*
+            // verifica usuario...
+            if(result === null) {
+                // ingresando el usuario administrador...
+                result = await this.regustraUsuario(userAdmin); 
+            }
+            else {
+                // actualizamos el objeto...
+                userAdmin = result;
+            }
+            */
+            // return...
+            return result;
+        } catch (error) {
+            throw error;            
+        }
     }
 
 }

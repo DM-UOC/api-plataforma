@@ -13,12 +13,12 @@ export class AuditoriaModel {
     public usuario_ins?: string;
     
     @prop({ default: moment().utc() })
-    public fecha_ins?: string;
+    public fecha_ins?: Date;
     
     @prop()
     public usuario_upd?: string;
     
     @prop()
-    public fecha_upd?: string;
+    public fecha_upd?: Date;
 
 }

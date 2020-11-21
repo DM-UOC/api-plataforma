@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, Req } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { InjectModel } from 'nestjs-typegoose';
-import { CatalogoModel } from 'src/server/models/catalogos/catalogo.model';
 import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
 import { Globals } from "../../../../../libs/config/globals";
 import { CatalogosService } from '../../catalogos/catalogos.service';
+import moment from "moment";
 declare const global: Globals;
 
 @Injectable()
@@ -35,21 +35,29 @@ export class AdministradoresService {
       const { temporal } = adminUser;      
       // query usuarios...
       const catalogo = await this.retornaPerfilAdministrador();
+      const catalogo_id: string = catalogo._id.toString();
       // nueva instancia...
       const nuevoUsuario = new this.usuarioModel(usuarioModel);
       // sete data...
       nuevoUsuario.nombre = usuarioModel.nombre;
       nuevoUsuario.apellido = usuarioModel.apellido;
       nuevoUsuario.nombre_completo = usuarioModel.nombre_completo;
-      nuevoUsuario.usuario = usuarioModel.usuario;
+      nuevoUsuario.usuario = usuarioModel.usuario || usuarioModel.correo;
       nuevoUsuario.clave = await this.usuarioModel.encryptPassword(temporal.clave);
-      nuevoUsuario.perfiles.push({
-        catalogo_id: catalogo?._id,
-        descripcion: catalogo.descripcion,
-        codigo_perfil: catalogo.valor1
-      });
+      nuevoUsuario.correo = usuarioModel.correo;
+      nuevoUsuario.perfiles = [
+        {
+          catalogo_id: Types.ObjectId(catalogo_id),
+          descripcion: catalogo.descripcion,
+          codigo_perfil: catalogo.valor1
+        }
+      ];
+      nuevoUsuario.auditoria = {
+        estado: false,
+        fecha_ins: moment().utc().toDate()
+      };
       // verificando si carga imagen...
-      if(!usuarioModel.usuario_imagen.data) {
+      if(!nuevoUsuario.usuario_imagen.data) {
         // set imagen...
         nuevoUsuario.usuario_imagen.data = file.buffer;
         nuevoUsuario.usuario_imagen.contentType = file.mimetype;
@@ -61,8 +69,11 @@ export class AdministradoresService {
     }
   }
 
-  async findAll(estado: boolean = true) {
+  async findAll(@Req() req, estado: boolean = true) {
     try {
+      // obtemos el host...
+      const host = req.get('host');
+
       // query usuarios...
       const perfil = await this.retornaPerfilAdministrador();
       // filtro...
@@ -72,7 +83,22 @@ export class AdministradoresService {
       };
       // retorna datos...
       const rows = await this.usuarioModel.find(filtro);
+      // seteo de imagen...
+      rows.forEach((data) => {
+        data.imagen_url = `http://${host}/administradores/profile/${data._id}`;
+      });
+      // return...
       return rows;      
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async findOneProfile(id: string) {
+    try {
+      const usuario: UsuarioModel = await this.usuarioModel.findById(id);
+      if (!usuario) throw new NotFoundException('Image does not exist!');
+      return usuario;
     } catch (error) {
       throw error;
     }

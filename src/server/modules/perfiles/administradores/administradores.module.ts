@@ -4,6 +4,8 @@ import { AdministradoresController } from '../../../controllers/perfiles/adminis
 import { TypegooseModule } from 'nestjs-typegoose';
 import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
 import { CatalogosModule } from '../../catalogos/catalogos.module';
+import { fileFilter } from "../../../../../libs/config/multer/config"
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -16,6 +18,11 @@ import { CatalogosModule } from '../../catalogos/catalogos.module';
             }                
         }
     ]),
+    MulterModule.registerAsync({
+      useFactory: () => ({
+        fileFilter
+      }),
+    }),
     CatalogosModule
   ],
   controllers: [AdministradoresController],
