@@ -7,7 +7,7 @@ export class AuditoriaModel {
         required: true,
         default: true
     })
-    public estado!: boolean;
+    public estado?: boolean;
     
     @prop()
     public usuario_ins?: string;

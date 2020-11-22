@@ -2,9 +2,10 @@ import { Injectable, NotFoundException, Req } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { InjectModel } from 'nestjs-typegoose';
+
 import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
-import { Globals } from "../../../../../libs/config/globals";
 import { CatalogosService } from '../../catalogos/catalogos.service';
+import { Globals } from "../../../../../libs/config/globals";
 import moment from "moment";
 declare const global: Globals;
 
@@ -28,7 +29,7 @@ export class AdministradoresService {
     }
   }
 
-  async create(file: any, usuarioModel: UsuarioModel) {
+  async create(@Req() req, file: any, usuarioModel: UsuarioModel) {
     try {
       // configuración...
       const { adminUser } = global.$config;
@@ -53,7 +54,6 @@ export class AdministradoresService {
         }
       ];
       nuevoUsuario.auditoria = {
-        estado: false,
         fecha_ins: moment().utc().toDate()
       };
       // verificando si carga imagen...
@@ -62,8 +62,15 @@ export class AdministradoresService {
         nuevoUsuario.usuario_imagen.data = file.buffer;
         nuevoUsuario.usuario_imagen.contentType = file.mimetype;
       }
+
       // return save usuario...
-      return nuevoUsuario.save();      
+      const row = await nuevoUsuario.save();
+      
+      const host = req.get('host');
+      row.imagen_url = `http://${host}/administradores/profile/${row._id}`;
+      
+      // retornamos...
+      return row;
     } catch (error) {
       throw error;
     }
@@ -115,4 +122,5 @@ export class AdministradoresService {
   remove(id: number) {
     return `This action removes a #${id} administradore`;
   }
+
 }

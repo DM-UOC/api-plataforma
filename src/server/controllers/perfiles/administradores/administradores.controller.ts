@@ -7,13 +7,16 @@ import { AdministradoresService } from '../../../services/perfiles/administrador
 
 @Controller('administradores')
 export class AdministradoresController {
-  constructor(private readonly administradoresService: AdministradoresService) {}
+
+  constructor(
+    private readonly administradoresService: AdministradoresService
+    ) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async create(@UploadedFile() file, @Body() body, @Res() res, @Req() req) {
     try {
-      const result = await this.administradoresService.create(file, body);
+      const result = await this.administradoresService.create(req, file, body);
       return res.status(HttpStatus.CREATED).json(result);
     } catch (error) {
         throw error;

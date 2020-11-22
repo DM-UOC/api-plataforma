@@ -23,11 +23,11 @@ export class SeguridadesController {
     }
 
     @Get('redsocial')
-    public async verificaUsuarioRedSocial(@Res() res: Response) {
+    public async verificaUsuarioRedSocial(@Req() req, @Res() res: Response) {
         try {
-            const result: UsuarioModel = await this.seguridadesService.verificaUsuarioInicial();
+            const row: UsuarioModel = await this.seguridadesService.verificaUsuarioRedSocial(req);
             // return...
-            return res.status(HttpStatus.OK).json(result);
+            return res.status(HttpStatus.OK).json(row);
         } catch (error) {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
         }

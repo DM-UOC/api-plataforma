@@ -12,6 +12,8 @@ production: &default
       clave: t3mp0r@l
   catalogos:
     tipoAdministrador: TPS_ADMIN
+    tipoProfesor: TPS_PROFESOR
+    tipoCliente: TPS_CLIENTE
   dataBase:
     servidor: localhost
     nombre: plataforma
@@ -32,6 +34,8 @@ development:
     <<: *latest
     catalogos:
       tipoAdministrador: TPS_ADMIN
+      tipoProfesor: TPS_PROFESOR
+      tipoCliente: TPS_CLIENTE
     dataBase:
       servidor: localhost
       nombre: plataforma

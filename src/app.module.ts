@@ -5,7 +5,6 @@ import { SeguridadesModule } from './server/modules/seguridades/seguridades.modu
 import { UsuariosModule } from './server/modules/usuarios/usuarios.module';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { GraphQLModule } from '@nestjs/graphql';
-import { AdministradoresModule } from './server/modules/perfiles/administradores/administradores.module';
 
 @Module({
   imports: [
@@ -17,6 +16,6 @@ import { AdministradoresModule } from './server/modules/perfiles/administradores
       useNewUrlParser: true,
       useUnifiedTopology: true
     }),
-    CatalogosModule, PerfilesModule, SeguridadesModule, UsuariosModule, AdministradoresModule]
+    CatalogosModule, PerfilesModule, SeguridadesModule, UsuariosModule]
 })
 export class AppModule {}
