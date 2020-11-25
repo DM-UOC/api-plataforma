@@ -9,7 +9,10 @@ export class MateriaModel {
     @prop({ required: true, trim: true })
     public descripcion?: string;
 
+    @prop({ trim: true })
+    public observacion?: string;
+    
     @prop({ type: AuditoriaModel })
     public auditoria: AuditoriaModel;
-    
+
 }

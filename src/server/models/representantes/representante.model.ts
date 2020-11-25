@@ -1,5 +1,6 @@
 import { prop } from "@typegoose/typegoose";
 import { Types } from "mongoose";
+import { AuditoriaModel } from "../comuns/auditoria.model";
 import { HijoModel } from "./hijo.model";
 
 export class RepresentanteModel {
@@ -10,5 +11,7 @@ export class RepresentanteModel {
     @prop({ required: true, type: HijoModel })
     public hijos?: HijoModel[];
 
+    @prop({ _id: false, type: AuditoriaModel })
+    public auditoria?: AuditoriaModel;
 
 }

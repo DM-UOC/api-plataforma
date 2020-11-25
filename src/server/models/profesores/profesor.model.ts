@@ -10,7 +10,7 @@ export class ProfesorModel {
     public usuario_id?: Types.ObjectId;
 
     @prop({ type: MateriaProfesorModel, _id:false })
-    public materias: MateriaProfesorModel[];
+    public materias?: MateriaProfesorModel[];
     
     @prop({ type: EstudioModel, _id: false })
     public estudios?: EstudioModel[];

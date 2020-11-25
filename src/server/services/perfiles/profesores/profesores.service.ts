@@ -7,14 +7,16 @@ import { CatalogosService } from '../../catalogos/catalogos.service';
 import moment from "moment";
 import { Globals } from 'libs/config/globals';
 import { Types } from 'mongoose';
+import { ProfesorModel } from 'src/server/models/profesores/profesor.model';
 declare const global: Globals;
 
 @Injectable()
 export class ProfesoresService {
 
     constructor(
-        @InjectModel(UsuarioModel) private readonly usuarioModel: ReturnModelType<typeof UsuarioModel>,
-        private catalogosService: CatalogosService
+      @InjectModel(UsuarioModel) private readonly usuarioModel: ReturnModelType<typeof UsuarioModel>,
+      @InjectModel(ProfesorModel) private readonly profesorModel: ReturnModelType<typeof ProfesorModel>,
+      private catalogosService: CatalogosService
     ) {}
 
     private async retornaPerfilProfesor() {
@@ -29,51 +31,68 @@ export class ProfesoresService {
         }
     }
     
-      async create(@Req() req, file: any, usuarioModel: UsuarioModel) {
-        try {
-            // configuración...
-            const { adminUser } = global.$config;
-            const { temporal } = adminUser;      
-            // query usuarios...
-            const catalogo = await this.retornaPerfilProfesor();
-            const catalogo_id: string = catalogo._id.toString();
-            // nueva instancia...
-            const nuevoUsuario = new this.usuarioModel(usuarioModel);
-            // sete data...
-            nuevoUsuario.nombre = usuarioModel.nombre;
-            nuevoUsuario.apellido = usuarioModel.apellido;
-            nuevoUsuario.nombre_completo = usuarioModel.nombre_completo;
-            nuevoUsuario.usuario = usuarioModel.usuario || usuarioModel.correo;
-            nuevoUsuario.clave = await this.usuarioModel.encryptPassword(temporal.clave);
-            nuevoUsuario.correo = usuarioModel.correo;
-            nuevoUsuario.perfiles = [
-                {
-                    catalogo_id: Types.ObjectId(catalogo_id),
-                    descripcion: catalogo.descripcion,
-                    codigo_perfil: catalogo.valor1
-                }
-            ];
-            nuevoUsuario.auditoria = {
-                fecha_ins: moment().utc().toDate()
-            };
-            // verificando si carga imagen...
-            if(!nuevoUsuario.usuario_imagen.data) {
-                // set imagen...
-                nuevoUsuario.usuario_imagen.data = file.buffer;
-                nuevoUsuario.usuario_imagen.contentType = file.mimetype;
-            }
-            // return save usuario...
-            const row = await nuevoUsuario.save();
-            
-            const host = req.get('host');
-            row.imagen_url = `http://${host}/profesores/profile/${row._id}`;
-            
-            // retornamos...
-            return row;    
-        } catch (error) {
-          throw error;
-        }
+    private async setReferenciaProfesor(usuario: UsuarioModel) {
+      try {
+        return await this.profesorModel.create({
+          usuario_id: usuario._id,
+          auditoria: {
+            fecha_ins: moment().utc().toDate(),
+            estado: true
+          }
+        });
+      } catch (error) {
+        throw error;
       }
+    }
+
+    public async create(@Req() req, file: any, usuarioModel: UsuarioModel) {
+      try {
+          // configuración...
+          const { adminUser } = global.$config;
+          const { temporal } = adminUser;      
+          // query usuarios...
+          const catalogo = await this.retornaPerfilProfesor();
+          const catalogo_id: string = catalogo._id.toString();
+          // nueva instancia...
+          const nuevoUsuario = new this.usuarioModel(usuarioModel);
+          // sete data...
+          nuevoUsuario.nombre = usuarioModel.nombre;
+          nuevoUsuario.apellido = usuarioModel.apellido;
+          nuevoUsuario.nombre_completo = usuarioModel.nombre_completo;
+          nuevoUsuario.usuario = usuarioModel.usuario || usuarioModel.correo;
+          nuevoUsuario.clave = await this.usuarioModel.encryptPassword(temporal.clave);
+          nuevoUsuario.correo = usuarioModel.correo;
+          nuevoUsuario.perfiles = [
+              {
+                  catalogo_id: Types.ObjectId(catalogo_id),
+                  descripcion: catalogo.descripcion,
+                  codigo_perfil: catalogo.valor1
+              }
+          ];
+          nuevoUsuario.auditoria = {
+              fecha_ins: moment().utc().toDate()
+          };
+          // verificando si carga imagen...
+          if(!nuevoUsuario.usuario_imagen.data) {
+              // set imagen...
+              nuevoUsuario.usuario_imagen.data = file.buffer;
+              nuevoUsuario.usuario_imagen.contentType = file.mimetype;
+          }
+          // return save usuario...
+          const row = await nuevoUsuario.save();
+          // setea la realación con la coleccion profesores...
+          await this.setReferenciaProfesor(row);
+
+          // setea la imagen url...
+          const host = req.get('host');
+          row.imagen_url = `http://${host}/profesores/profile/${row._id}`;
+          
+          // retornamos...
+          return row;    
+      } catch (error) {
+        throw error;
+      }
+    }
     
     async findAll(@Req() req, estado: boolean = true) {
         try {
