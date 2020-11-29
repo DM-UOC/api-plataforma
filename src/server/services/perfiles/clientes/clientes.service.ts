@@ -1,15 +1,16 @@
 import { Request } from 'express';
 import { Types } from 'mongoose';
+import moment from "moment";
+
 import { Injectable, NotFoundException, Req } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
-import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
-import { CatalogosService } from '../../catalogos/catalogos.service';
 
-import moment from "moment";
 import { Globals } from 'libs/config/globals';
-import { RepresentanteModel } from 'src/server/models/representantes/representante.model';
-import { HijoModel } from 'src/server/models/representantes/hijo.model';
+import { UsuarioModel } from '../../../models/usuarios/usuario.model';
+import { CatalogosService } from '../../catalogos/catalogos.service';
+import { RepresentanteModel } from '../../../models/representantes/representante.model';
+import { HijoModel } from '../../../models/representantes/hijo.model';
 
 declare const global: Globals;
 

@@ -3,7 +3,7 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { InjectModel } from 'nestjs-typegoose';
 
-import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
+import { UsuarioModel } from '../../../models/usuarios/usuario.model';
 import { CatalogosService } from '../../catalogos/catalogos.service';
 import { Globals } from "../../../../../libs/config/globals";
 import moment from "moment";
@@ -86,7 +86,7 @@ export class AdministradoresService {
       // filtro...
       const filtro = {
         "perfiles.catalogo_id": Types.ObjectId(perfil._id.toString()), 
-        "auditoria.estado": true
+        "auditoria.estado": estado
       };
       // retorna datos...
       const rows = await this.usuarioModel.find(filtro);

@@ -1,13 +1,14 @@
+import moment from "moment";
+import { Types } from 'mongoose';
+
 import { Injectable, NotFoundException, Req } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
-import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
-import { CatalogosService } from '../../catalogos/catalogos.service';
 
-import moment from "moment";
 import { Globals } from 'libs/config/globals';
-import { Types } from 'mongoose';
-import { ProfesorModel } from 'src/server/models/profesores/profesor.model';
+import { UsuarioModel } from '../../../models/usuarios/usuario.model';
+import { CatalogosService } from '../../catalogos/catalogos.service';
+import { ProfesorModel } from '../../../models/profesores/profesor.model';
 declare const global: Globals;
 
 @Injectable()

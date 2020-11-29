@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, Req, UseInterceptors, UploadedFile, Res, HttpStatus } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Request } from 'express';
-import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
+import { UsuarioModel } from '../../../models/usuarios/usuario.model';
 import { AdministradoresService } from '../../../services/perfiles/administradores/administradores.service';
 
 

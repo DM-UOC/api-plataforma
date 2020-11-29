@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { HijoModel } from 'src/server/models/representantes/hijo.model';
-import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
-import { ClientesService } from 'src/server/services/perfiles/clientes/clientes.service';
+import { HijoModel } from '../../../models/representantes/hijo.model';
+import { UsuarioModel } from '../../../models/usuarios/usuario.model';
+import { ClientesService } from '../../../services/perfiles/clientes/clientes.service';
 
 @Controller('clientes')
 export class ClientesController {

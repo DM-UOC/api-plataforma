@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
-import { CatalogoModel } from 'src/server/models/catalogos/catalogo.model';
+import { CatalogoModel } from '../../models/catalogos/catalogo.model';
 
 @Injectable()
 export class CatalogosService {

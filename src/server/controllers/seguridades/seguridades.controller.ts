@@ -1,8 +1,7 @@
 import { Controller, Get, Res, HttpStatus, Req } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
-import { SeguridadesResolver } from 'src/server/resolvers/seguridades/seguridades.resolver';
-import { SeguridadesService } from 'src/server/services/seguridades/seguridades.service';
+import { UsuarioModel } from '../../models/usuarios/usuario.model';
+import { SeguridadesService } from '../../services/seguridades/seguridades.service';
 
 @Controller('seguridades')
 export class SeguridadesController {

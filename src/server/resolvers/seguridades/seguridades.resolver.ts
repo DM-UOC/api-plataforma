@@ -1,6 +1,6 @@
 import { Resolver, Query } from '@nestjs/graphql';
-import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
-import { SeguridadesService } from 'src/server/services/seguridades/seguridades.service';
+import { UsuarioModel } from '../../models/usuarios/usuario.model';
+import { SeguridadesService } from '../../services/seguridades/seguridades.service';
 
 @Resolver('Seguridades')
 export class SeguridadesResolver {

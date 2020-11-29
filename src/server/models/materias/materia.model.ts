@@ -12,7 +12,7 @@ export class MateriaModel {
     @prop({ trim: true })
     public observacion?: string;
     
-    @prop({ type: AuditoriaModel })
+    @prop({ type: AuditoriaModel, _id: false })
     public auditoria: AuditoriaModel;
 
 }

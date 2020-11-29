@@ -1,14 +1,17 @@
+import { Request } from 'express';
+import { Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
 import moment from "moment";
+
 import { Injectable, Req } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
-import { CatalogoModel } from 'src/server/models/catalogos/catalogo.model';
-import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
+
+import { CatalogoModel } from '../../models/catalogos/catalogo.model';
+import { UsuarioModel } from '../../models/usuarios/usuario.model';
 import { Globals } from "../../../../libs/config/globals";
 import { CatalogosService } from '../catalogos/catalogos.service';
-import { Request } from 'express';
-import { Types } from 'mongoose';
+
 declare const global: Globals;
 
 @Injectable()
