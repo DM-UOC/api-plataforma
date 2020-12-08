@@ -32,6 +32,12 @@ test: &latest
     <<: *stage
 development:
     <<: *latest
+  adminUser:
+    usuario: admin@
+    dominio: email.com
+    clave: admin
+    temporal:
+      clave: t3mp0r@l    
     catalogos:
       tipoAdministrador: TPS_ADMIN
       tipoProfesor: TPS_PROFESOR
