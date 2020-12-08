@@ -19,10 +19,10 @@ export class LectivoModel {
     @prop({ default: 0, min: 0 })
     public puntaje_objetivo?: number;
  
-    @prop({ _id: false, ref: ParcialModel })
+    @prop({ type: ParcialModel })
     public parciales?: ParcialModel[];
  
-    @prop({ _id: false, ref: AuditoriaModel })
+    @prop({ _id: false, type: AuditoriaModel })
     public auditoria?: AuditoriaModel;
 
 }

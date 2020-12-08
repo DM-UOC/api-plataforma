@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { Injectable, NotFoundException, Req } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
@@ -11,6 +12,8 @@ declare const global: Globals;
 
 @Injectable()
 export class AdministradoresService {
+
+  private request: Request;
 
   constructor(
     @InjectModel(UsuarioModel) private readonly usuarioModel: ReturnModelType<typeof UsuarioModel>,
@@ -29,7 +32,7 @@ export class AdministradoresService {
     }
   }
 
-  async create(@Req() req, file: any, usuarioModel: UsuarioModel) {
+  async create(file: any, usuarioModel: UsuarioModel) {
     try {
       // configuración...
       const { adminUser } = global.$config;
@@ -65,9 +68,6 @@ export class AdministradoresService {
 
       // return save usuario...
       const row = await nuevoUsuario.save();
-      
-      const host = req.get('host');
-      row.imagen_url = `http://${host}/administradores/profile/${row._id}`;
       
       // retornamos...
       return row;
@@ -115,12 +115,50 @@ export class AdministradoresService {
     return `This action returns a #${id} administradore`;
   }
 
-  update(id: number, usuarioModel: UsuarioModel) {
-    return `This action updates a #${id} administradore`;
+  async update(id: string, file: any, usuarioModel: UsuarioModel): Promise<UsuarioModel> {
+    try {
+      let update = {
+        nombre: usuarioModel.nombre,
+        apellido: usuarioModel.apellido,
+        nombre_completo: `${usuarioModel.nombre} ${usuarioModel.apellido}`,
+        correo: usuarioModel.correo
+      };
+      // verificando si actualiza la imagen....
+      if(file !== undefined) {
+        update['usuario_imagen'] = {
+          data: file.buffer,
+          contentType: file.mimetype
+        };
+      }
+      // return...
+      return await this.usuarioModel.findByIdAndUpdate(
+        id,
+        update, {
+        new: true
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} administradore`;
+  async remove(id: string, estado: boolean = false) {
+    try {
+      return await this.usuarioModel.findByIdAndUpdate(
+        id, 
+        {
+          $set: {
+            auditoria: {
+              estado,
+              fecha_upd: moment().utc().toDate()
+            }
+          }
+        },
+        {
+          new: true
+        });
+    } catch (error) {
+      throw error;
+    }
   }
 
 }

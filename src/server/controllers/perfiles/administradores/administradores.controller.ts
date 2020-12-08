@@ -15,8 +15,13 @@ export class AdministradoresController {
   @UseInterceptors(FileInterceptor('file'))
   async create(@UploadedFile() file, @Body() body, @Res() res, @Req() req) {
     try {
-      const result = await this.administradoresService.create(req, file, body);
-      return res.status(HttpStatus.CREATED).json(result);
+      // obteniendo el host...
+      const row = await this.administradoresService.create(file, body);
+      // armamos enalce de imagen...
+      const host = req.get('host');
+      row.imagen_url = `http://${host}/administradores/profile/${row._id}`;      
+      // return...
+      return res.status(HttpStatus.CREATED).json(row);
     } catch (error) {
         throw error;
     }
@@ -46,13 +51,29 @@ export class AdministradoresController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() usuarioModel: UsuarioModel) {
-    return this.administradoresService.update(+id, usuarioModel);
+  @UseInterceptors(FileInterceptor('file'))
+  async update(@UploadedFile() file, @Param('id') id: string, @Body() usuarioModel: UsuarioModel, @Req() req): Promise<UsuarioModel> {
+    try {
+      // actualizando l registro...
+      const row = await this.administradoresService.update(id, file, usuarioModel); 
+      // obteniendo el host...
+      const host = req.get('host');
+      // seteando imagen
+      row.imagen_url = `http://${host}/administradores/profile/${row._id}`;      
+      // retorna...
+      return row;      
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.administradoresService.remove(+id);
+  async remove(@Param('id') id: string) {
+    try {
+      return await this.administradoresService.remove(id);      
+    } catch (error) {
+      throw error;
+    }
   }
 
 }

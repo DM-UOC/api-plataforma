@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsuarioModel } from '../../../models/usuarios/usuario.model';
 import { ProfesoresService } from '../../../services/perfiles/profesores/profesores.service';
@@ -38,5 +38,31 @@ export class ProfesoresController {
             res.status(400).json(error);
         }
     }
-        
+
+    @Put(':id')
+    @UseInterceptors(FileInterceptor('file'))
+    async update(@UploadedFile() file, @Param('id') id: string, @Body() usuarioModel: UsuarioModel, @Req() req): Promise<UsuarioModel> {
+      try {
+        // actualizando l registro...
+        const row = await this.profesoresService.update(id, file, usuarioModel); 
+        // obteniendo el host...
+        const host = req.get('host');
+        // seteando imagen
+        row.imagen_url = `http://${host}/profesores/profile/${row._id}`;      
+        // retorna...
+        return row;      
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    @Delete(':id')
+    async remove(@Param('id') id: string) {
+      try {
+        return await this.profesoresService.remove(id);      
+      } catch (error) {
+        throw error;
+      }
+    }
+
 }
