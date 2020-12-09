@@ -16,7 +16,10 @@
             "env": {
                 "NODE_ENV": "development",
                 "ENCRYPT_ALGORITHM": "aes-256-cbc",
-                "ENCRYPT_KEY": "*key_desarrollo_plataforma_2020*"
+                "ENCRYPT_KEY": "*key_desarrollo_plataforma_2020*",
+                "DB_MOONGO_USER": "user_plataforma",
+                "DB_MOONGO_PASS": "*20P1aTAf0rmA21*",
+                "DB_MOONGO_DB": "plataforma"
             }
         }
     ]
