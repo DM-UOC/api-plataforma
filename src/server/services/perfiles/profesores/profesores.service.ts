@@ -9,6 +9,8 @@ import { Globals } from 'libs/config/globals';
 import { UsuarioModel } from '../../../models/usuarios/usuario.model';
 import { CatalogosService } from '../../catalogos/catalogos.service';
 import { ProfesorModel } from '../../../models/profesores/profesor.model';
+import { MateriasService } from "../../materias/materias.service";
+import { MateriaModel } from "src/server/models/materias/materia.model";
 declare const global: Globals;
 
 @Injectable()
@@ -17,7 +19,8 @@ export class ProfesoresService {
     constructor(
       @InjectModel(UsuarioModel) private readonly usuarioModel: ReturnModelType<typeof UsuarioModel>,
       @InjectModel(ProfesorModel) private readonly profesorModel: ReturnModelType<typeof ProfesorModel>,
-      private catalogosService: CatalogosService
+      private catalogosService: CatalogosService,
+      private materiasService: MateriasService
     ) {}
 
     private async retornaPerfilProfesor() {
@@ -105,7 +108,7 @@ export class ProfesoresService {
             // filtro...
             const filtro = {
               "perfiles.catalogo_id": Types.ObjectId(perfil._id.toString()), 
-              "auditoria.estado": true
+              "auditoria.estado": estado
             };
             // retorna datos...
             const rows = await this.usuarioModel.find(filtro);
@@ -141,10 +144,12 @@ export class ProfesoresService {
     
       async update(id: string, file: any, usuarioModel: UsuarioModel): Promise<UsuarioModel> {
         try {
+          const {nombre, apellido } = usuarioModel;
+          // campos update...
           let update = {
             nombre: usuarioModel.nombre,
             apellido: usuarioModel.apellido,
-            nombre_completo: `${usuarioModel.nombre} ${usuarioModel.apellido}`,
+            nombre_completo: `${nombre} ${apellido}`,
             correo: usuarioModel.correo
           };
           // verificando si actualiza la imagen....
@@ -185,4 +190,103 @@ export class ProfesoresService {
         }
       }
 
+      private async retornaListaMateriasProfesores(estado: boolean) {
+        // filtro...
+        const filtro = {
+          "auditoria.estado": estado
+        };
+        // retorna datos...
+        return await this.profesorModel.aggregate<ProfesorModel>([
+          {
+            $match: {
+              "auditoria.estado": estado
+            }
+          },  {
+            $lookup: {
+              from: 'usuarios',
+              localField: 'usuario_id',
+              foreignField: '_id',
+              as: 'profesores'                  
+            }
+          },  {
+            $project: {
+              _id: 1,
+              usuario_id: 1,
+              materias: 1,
+              estudios: 1,
+              profesores: {
+                _id: 1,
+                nombre_completo: 1,
+                usuario_imagen: 1,
+                imagen_url: 1
+              }                  
+            }
+          }
+        ]);
+      }
+
+      async findAllProfesores(@Req() req, estado: boolean = true) {
+        try {
+          // obtemos el host...
+          const host = req.get('host');
+                    
+          // retonamos datos de profesores...
+          const rows: ProfesorModel[] = await this.retornaListaMateriasProfesores(estado);
+          // verificamos q exita usuarios...
+          if(rows.length > 0) {
+            // seteo de imagen...
+            rows.forEach((profesor: any) => {
+              // recorremos los profesores asociados...
+              profesor.profesores.forEach((usuario: UsuarioModel) => {
+                // armando la url para obtener la foto....
+                usuario.imagen_url = `http://${host}/profesores/profile/${usuario._id}`;
+              });
+            });
+          }
+          // return...
+          return rows;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async retornaMateriasPorProfesor(usuario_id: string) {
+      const retornaProfesor = new this.profesorModel();
+      // valores del profesor...
+      const profesor = await this.profesorModel.findOne({
+        usuario_id
+      });
+      // recoge solo los identificadores de las materias...
+      let materias: any = profesor.materias.map(materia => {
+        return materia.materia_id;
+      });
+      // retorna las materias del profesor...
+      return await this.materiasService.retornaMateriasProfesor(materias);
+    }
+
+    async registraMateriaProfesor(usuario_id: string, materia: MateriaModel) {
+      try {
+        // retistramos la materia...
+        await this.profesorModel.findOneAndUpdate({
+          usuario_id
+        },  {
+          $addToSet: {
+            materias: {
+              materia_id: materia._id,
+              auditoria: {
+                estado: true,
+                fecha_ins: moment().utc().toDate()
+              }
+            }
+          }
+        },  {
+          new: true
+        });
+        // devolvemos actualizada la lista...
+        return await this.retornaMateriasPorProfesor(usuario_id);
+      } catch (error) {
+        throw error;
+      }
+    }
+    
 }

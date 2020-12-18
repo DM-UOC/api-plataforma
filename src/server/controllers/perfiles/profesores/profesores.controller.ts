@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Req, Res, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsuarioModel } from '../../../models/usuarios/usuario.model';
 import { ProfesoresService } from '../../../services/perfiles/profesores/profesores.service';
@@ -64,5 +64,34 @@ export class ProfesoresController {
         throw error;
       }
     }
+
+    @Get('/lista')
+    public findAllProfesores(@Req() req) {
+      return this.profesoresService.findAllProfesores(req);
+    }
+    
+  @Get('/materias')
+  public retornaMateriasProfesor(@Query() query) {
+    try {
+      // recoge el usuario id...
+      const { usuario_id } = query;
+      // retornamos los valores...
+      return this.profesoresService.retornaMateriasPorProfesor(usuario_id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post('/agregar')
+  public agregarMateriasProfesor(@Body() body) {
+    try {
+      // recoge el usuario id...
+      const { usuario_id, materia } = body;
+      // retornamos los valores...
+      return this.profesoresService.registraMateriaProfesor(usuario_id, materia);
+    } catch (error) {
+      throw error;
+    }
+  }
 
 }

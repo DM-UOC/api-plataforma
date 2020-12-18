@@ -7,6 +7,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { MateriasModule } from './server/modules/materias/materias.module';
 import { typeGooseConexion } from 'libs/database/typegoose.conexion';
 import { LectivosModule } from './server/modules/lectivos/lectivos.module';
+import { ConferenciasModule } from './server/conferencias/conferencias.module';
 
 @Module({
   imports: [
@@ -15,6 +16,6 @@ import { LectivosModule } from './server/modules/lectivos/lectivos.module';
       playground: true
     }),
     typeGooseConexion(),
-    CatalogosModule, PerfilesModule, SeguridadesModule, UsuariosModule, MateriasModule, LectivosModule]
+    CatalogosModule, PerfilesModule, SeguridadesModule, UsuariosModule, MateriasModule, LectivosModule, ConferenciasModule]
 })
 export class AppModule {}

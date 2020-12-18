@@ -24,12 +24,12 @@ export class MateriasController {
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateMateriaDto: MateriaModel) {
-    return this.materiasService.update(+id, updateMateriaDto);
+    return this.materiasService.update(id, updateMateriaDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.materiasService.remove(+id);
+    return this.materiasService.remove(id);
   }
   
 }

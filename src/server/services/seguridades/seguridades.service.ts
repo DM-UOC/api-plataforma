@@ -39,7 +39,7 @@ export class SeguridadesService {
                     as: "tipo_perfil"
                 }
             }
-        ])
+        ]);
     }
 
     private async obtenerClave(clave: string) {
@@ -157,7 +157,8 @@ export class SeguridadesService {
             const catalogo_id: string = catalogo?._id.toString();
             // query...
             let result = await this.usuarioModel.findOne({
-                "perfiles.catalogo_id": Types.ObjectId(catalogo_id)
+                "perfiles.catalogo_id": Types.ObjectId(catalogo_id),
+                "perfiles.super_usuario": true
             });
             // verifica usuario...
             if(result === null) {

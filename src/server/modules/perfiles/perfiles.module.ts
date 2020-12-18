@@ -15,6 +15,7 @@ import { ProfesorModel } from '../../models/profesores/profesor.model';
 import { AlumnoModel } from '../../models/representantes/alumno.model';
 import { RepresentanteModel } from '../../models/representantes/representante.model';
 import { HijoModel } from '../../models/representantes/hijo.model';
+import { MateriasModule } from '../materias/materias.module';
 
 @Module({
   imports: [
@@ -60,7 +61,8 @@ import { HijoModel } from '../../models/representantes/hijo.model';
         fileFilter
       }),
     }),
-    CatalogosModule
+    CatalogosModule,
+    MateriasModule
   ],
   controllers: [AdministradoresController, ProfesoresController, ClientesController],
   providers: [AdministradoresService, ProfesoresService, ClientesService]

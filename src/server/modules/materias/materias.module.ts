@@ -16,6 +16,9 @@ import { MateriasService } from '../../services/materias/materias.service';
       }
     ])
   ],
+  exports: [
+    MateriasService
+  ],
   controllers: [MateriasController],
   providers: [MateriasService]
 })

@@ -3,6 +3,7 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
 import { MateriaModel } from '../../models/materias/materia.model';
 import moment from "moment";
+import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
 
 @Injectable()
 export class MateriasService {
@@ -39,11 +40,56 @@ export class MateriasService {
     return `This action returns a #${id} materia`;
   }
 
-  update(id: number, updateMateriaDto: MateriaModel) {
-    return `This action updates a #${id} materia`;
+  async update(id: string, updateMateriaDto: MateriaModel): Promise<UsuarioModel> {
+    try {
+      // recogiendo datos...
+      const { descripcion, observacion} = updateMateriaDto;
+      // return...
+      return await this.materiaModel.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            descripcion,
+            observacion,
+            auditoria: {
+              fecha_upd: moment().utc().toDate()
+            }
+          }
+        }, {
+        new: true
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} materia`;
+  async remove(id: string, estado: boolean = false) {
+    try {
+      return await this.materiaModel.findByIdAndUpdate(
+        id, 
+        {
+          $set: {
+            auditoria: {
+              estado,
+              fecha_upd: moment().utc().toDate()
+            }
+          }
+        },
+        {
+          new: true
+        });
+    } catch (error) {
+      throw error;
+    }
   }
+
+  retornaMateriasProfesor(materias: any []) {
+    // devuelve las materias que no esten incluidas en el arreglo...
+    return this.materiaModel.find({
+      _id: {
+        $nin: materias
+      }
+    });
+  }
+  
 }
