@@ -38,7 +38,7 @@ Este servicio permite ejecutar nodejs
 
 ![alt text](./assets/pm2_ejecucion.jpg)
 
-El gráfico que se muestra en la parte superior muestra PM2 ya ejecutado y en espera de comunicación desde la capa del cliente.
+El gráfico superior muestra PM2 ya ejecutado y en espera de comunicación desde la capa del cliente.
 
 ## Repositorio
 
