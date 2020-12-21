@@ -1,5 +1,6 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { RepresentanteModel } from 'src/server/models/representantes/representante.model';
 import { HijoModel } from '../../../models/representantes/hijo.model';
 import { UsuarioModel } from '../../../models/usuarios/usuario.model';
 import { ClientesService } from '../../../services/perfiles/clientes/clientes.service';
@@ -50,7 +51,7 @@ export class ClientesController {
         }
     }
 
-    @Post('hijo')
+    @Post('/hijo')
     @UseInterceptors(FileInterceptor('file'))
     async create(@UploadedFile() file, @Body() body, @Res() res, @Req() req) {
       try {
@@ -61,6 +62,26 @@ export class ClientesController {
       }
     }
 
+    @Put('/hijo')
+    @UseInterceptors(FileInterceptor('file'))
+    async updateHijo(@UploadedFile() file, @Body() hijoModel: HijoModel, @Req() req) {
+      try {
+        // actualizando l registro...
+        return await this.clientesService.actualizaHijo(req, file, hijoModel);
+      } catch (error) {
+        throw error;
+      }
+    }
+    
+    @Delete('/hijo/:id')
+    async eliminaHijo(@Param('id') id: string) {
+      try {
+        return await this.clientesService.eliminaHijo(id);      
+      } catch (error) {
+        throw error;
+      }
+    }
+    
     @Get('representante')
     public async verificaRepresentante(@Res() res, @Req() req) {
         try {

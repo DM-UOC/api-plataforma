@@ -4,9 +4,10 @@ import { AuditoriaModel } from "../comuns/auditoria.model";
 
 export class HijoModel {
 
-    public readonly _id: Types.ObjectId;
+    public readonly _id?: Types.ObjectId;
 
-    public representante_id: Types.ObjectId;
+    @prop({ required: true })
+    public representante_id?: Types.ObjectId;
 
     @prop({ required: true, trim: true })
     public nombre?: string;
@@ -21,7 +22,7 @@ export class HijoModel {
     public fecha_nacimiento?: Date;
 
     @prop({ requerid: true, default: 0 })
-    public edad: number;
+    public edad?: number;
 
     @prop({ default: { data: null, contentType: null }})
     public foto?: {

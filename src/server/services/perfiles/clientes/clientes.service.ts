@@ -93,11 +93,8 @@ export class ClientesService {
       }
     }
 
-    private async verificaUsuario(usuario: string, activo: string = 'true') {
+    private async verificaUsuario(usuario: string, estado: boolean = true) {
       try {
-        // conviertiendo a tipo boolean...
-        let estado =  (activo === 'true');
-        // filtro usuario...
         let filtro = {
           usuario,
           "auditoria.estado": estado
@@ -109,7 +106,7 @@ export class ClientesService {
       }
     }
 
-    private async retornaRepresentante(usuarioModel: UsuarioModel, estado: boolean = true) {
+    private async retornaRepresentante(usuarioModel: UsuarioModel, estado: boolean = true): Promise<RepresentanteModel> {
       try {
         // filtro representante...
         let filtroRepresentante = {
@@ -117,7 +114,26 @@ export class ClientesService {
           "auditoria.estado": estado        
         };
         // retornando datos...
-        return await this.representanteModel.findOne(filtroRepresentante);
+        const rows: RepresentanteModel[] = await this.representanteModel.aggregate([
+          {
+            $match: filtroRepresentante
+          },  {
+            $project: {
+              usuario_id: 1,
+              hijos: {
+                $filter: {
+                  input: "$hijos",
+                  as: "hs",
+                  cond: {
+                    $eq: ["$$hs.auditoria.estado", true]
+                  }
+                }                
+              }
+            }
+          }
+        ]);
+        // return...
+        return rows[0];
       } catch (error) {
         throw error;
       }
@@ -127,10 +143,12 @@ export class ClientesService {
       try {
         // parametros...
         let { usuario, estado } = req.query as any;
+        // convirtiendo a valor true...
+        estado = (estado === "true");
         // retornando información del usuario...
         const usuarioModel = await this.verificaUsuario(usuario, estado);
         // retorna datos del representante...
-        const row = await this.retornaRepresentante(usuarioModel, estado)
+        const row: RepresentanteModel = await this.retornaRepresentante(usuarioModel, estado);
         // verificando si existe datos...
         if(row) {
           // armando la imagen del hijo...
@@ -147,7 +165,7 @@ export class ClientesService {
           }
         }
         // return...
-        return row;        
+        return row;
       } catch (error) {
         throw error;
       }
@@ -160,9 +178,12 @@ export class ClientesService {
         nuevoHijo.edad = moment().diff(hijoModel.fecha_nacimiento, 'years', false);
         // verificando si carga imagen...
         if(!nuevoHijo.foto.data) {
-          // set imagen...
-          nuevoHijo.foto.data = file.buffer;
-          nuevoHijo.foto.contentType = file.mimetype;
+          // verifica si está seteado el archivo...
+          if(file !== undefined) {
+            // set imagen...
+            nuevoHijo.foto.data = file.buffer;
+            nuevoHijo.foto.contentType = file.mimetype;
+          }
         }
         // auditoria...
         nuevoHijo.auditoria = {
@@ -179,6 +200,84 @@ export class ClientesService {
         });
         // return
         return representante;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    public async actualizaHijo(@Req() req, file: any, hijoModel: HijoModel) {
+      try {
+        // objeto update...
+        let update = {};
+        // desestructurando el objeto...
+        let { nombre, apellido, edad, fecha_nacimiento, nombre_completo } = hijoModel;
+        // calculando la edad del hijo...
+        edad = moment().diff(fecha_nacimiento, 'years', false);
+        // seteo de valores a actualizar...
+        update['hijos.$[hijoID].nombre'] = nombre;
+        update['hijos.$[hijoID].apellido'] = apellido;
+        update['hijos.$[hijoID].nombre_completo'] = nombre_completo;
+        update['hijos.$[hijoID].fecha_nacimiento'] = fecha_nacimiento;
+        update['hijos.$[hijoID].edad'] = edad;
+        // verificando si actualiza la imagen....
+        if(file !== undefined) {
+          // set imagen...
+          update['hijos.$[hijoID].foto.data'] = file.buffer;
+          update['hijos.$[hijoID].foto.contentType'] = file.mimetype;
+        }
+        // auditoria...
+        update['hijos.$[hijoID].auditoria.fecha_upd'] = moment().utc().toDate();
+
+        // verifica  que existe representane...
+        const representante: RepresentanteModel = await this.representanteModel.findOneAndUpdate({
+          _id: hijoModel.representante_id,
+          "hijos._id": hijoModel._id
+        },  {
+            $set: update
+        },  {
+            new: true,
+            arrayFilters: [
+              {
+                "hijoID._id": hijoModel._id
+              }
+            ]
+        });
+
+        // get host...
+        const host = req.get('host');
+        // recorriendo datos...
+        representante.hijos.forEach((data) => {
+          // verifica el id es igual al valor que se editó para actualizar la imagen...
+          if(data._id.toString() === hijoModel._id.toString()) {
+            // retorna la imagen mediante la consulta...
+            data.foto_url = `http://${host}/clientes/hijo/${data._id}`;
+          }
+        });
+        // return
+        return representante;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    async eliminaHijo(_id: string, estado: boolean = false) {
+      try {
+        // update estado eliminado...
+        return await this.representanteModel.findOneAndUpdate({
+            "hijos._id": Types.ObjectId(_id)
+          },  {
+            $set: {
+              'hijos.$[hijoID].auditoria.estado': estado,
+              'hijos.$[hijoID].auditoria.fecha_upd': moment().utc().toDate()
+            }
+          },  {
+            new: true,
+            arrayFilters: [
+              {
+                "hijoID._id": Types.ObjectId(_id)
+              }
+            ]
+          });
       } catch (error) {
         throw error;
       }

@@ -261,7 +261,11 @@ export class ProfesoresService {
         return materia.materia_id;
       });
       // retorna las materias del profesor...
-      return await this.materiasService.retornaMateriasProfesor(materias);
+      materias = await this.materiasService.retornaMateriasProfesor(materias);
+      // agregamos al profesor...
+      retornaProfesor.materias = materias;
+      // return...
+      return retornaProfesor;
     }
 
     async registraMateriaProfesor(usuario_id: string, materia: MateriaModel) {
