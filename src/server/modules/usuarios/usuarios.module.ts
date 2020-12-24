@@ -17,6 +17,9 @@ import { UsuariosService } from '../../services/usuarios/usuarios.service';
             }
         ])
     ],
+    exports: [
+        UsuariosService
+    ],
     controllers: [
         UsuariosController
     ],

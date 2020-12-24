@@ -1,1 +1,4 @@
-export class Conferencia {}
+export class Conferencia {
+
+    
+}

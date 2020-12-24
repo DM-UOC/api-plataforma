@@ -8,6 +8,7 @@ import { MateriasModule } from './server/modules/materias/materias.module';
 import { typeGooseConexion } from 'libs/database/typegoose.conexion';
 import { LectivosModule } from './server/modules/lectivos/lectivos.module';
 import { ConferenciasModule } from './server/modules/conferencias/conferencias.module';
+import { SesionesModule } from './server/modules/sesiones/sesiones.module';
 
 @Module({
   imports: [
@@ -16,6 +17,13 @@ import { ConferenciasModule } from './server/modules/conferencias/conferencias.m
       playground: true
     }),
     typeGooseConexion(),
-    CatalogosModule, PerfilesModule, SeguridadesModule, UsuariosModule, MateriasModule, LectivosModule, ConferenciasModule]
+    CatalogosModule, 
+    PerfilesModule, 
+    SeguridadesModule, 
+    UsuariosModule, 
+    MateriasModule, 
+    LectivosModule, 
+    ConferenciasModule, 
+    SesionesModule]
 })
 export class AppModule {}

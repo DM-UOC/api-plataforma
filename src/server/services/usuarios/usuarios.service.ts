@@ -14,4 +14,14 @@ export class UsuariosService {
     public async retornaUsuarios() {
         return await this.usuarioModel.find();
     }
+
+    async retornaUsuario(usuario: string, estado: boolean = true) {
+        // filtro de registro...
+        const filtro = {
+            usuario,
+            "auditoria.estado": estado
+        };
+        // return...
+        return await this.usuarioModel.findOne(filtro);
+    }
 }

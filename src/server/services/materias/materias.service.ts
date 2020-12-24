@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
 import { MateriaModel } from '../../models/materias/materia.model';
-import moment from "moment";
 import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
+import moment from "moment";
 
 @Injectable()
 export class MateriasService {

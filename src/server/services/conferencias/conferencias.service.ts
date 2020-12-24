@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateConferenciaDto } from '../../models/conferencias/dto/create-conferencia.dto';
-import { UpdateConferenciaDto } from '../../models/conferencias/dto/update-conferencia.dto';
+import { CreateConferenciaDto } from '../../dtos/conferencias/create-conferencia.dto';
+import { UpdateConferenciaDto } from '../../dtos/conferencias/update-conferencia.dto';
 
 @Injectable()
 export class ConferenciasService {

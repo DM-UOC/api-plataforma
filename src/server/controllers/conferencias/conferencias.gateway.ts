@@ -8,7 +8,7 @@ import { WebSocketGateway,
   WebSocketServer } from '@nestjs/websockets';
 import { ConferenciasService } from '../../services/conferencias/conferencias.service';
 // import { CreateConferenciaDto } from '../../models/conferencias/dto/create-conferencia.dto';
-import { UpdateConferenciaDto } from '../../models/conferencias/dto/update-conferencia.dto';
+// import { UpdateConferenciaDto } from '../../models/conferencias/dto/update-conferencia.dto';
 import { Socket, Server } from "socket.io";
 import { Logger } from '@nestjs/common';
 
@@ -64,11 +64,13 @@ export class ConferenciasGateway implements OnGatewayInit, OnGatewayConnection, 
     return this.conferenciasService.findOne(id);
   }
 
+  /*
   @SubscribeMessage('updateConferencia')
   update(@MessageBody() updateConferenciaDto: UpdateConferenciaDto) {
     return this.conferenciasService.update(updateConferenciaDto.id, updateConferenciaDto);
   }
-
+  */
+ 
   @SubscribeMessage('removeConferencia')
   remove(@MessageBody() id: number) {
     return this.conferenciasService.remove(id);
@@ -98,14 +100,14 @@ export class ConferenciasGateway implements OnGatewayInit, OnGatewayConnection, 
     this.server.to(message.room).emit('chatToClient', message);
   }
 
-  @SubscribeMessage('uneCuarto')
-  handleRoomJoin(client: Socket, message: { roomId: string, userId: string } ) {
-    client.join(message.roomId);
-    client.to(message.roomId).broadcast.emit('usuarioConectado', message.userId);
+  @SubscribeMessage('uneSesion')
+  handleRoomJoin(client: Socket, message: { cuartoId: string, usuarioId: string } ) {
+    client.join(message.cuartoId);
+    client.to(message.cuartoId).broadcast.emit('usuarioConectado', message.usuarioId);
     // client.emit('joinedRoom', message.roomId);
   }
 
-  @SubscribeMessage('dejaCuarto')
+  @SubscribeMessage('dejaSesion')
   handleRoomLeave(client: Socket, message: { cuartoId: string, usuarioId: string } ) {
     client.leave(message.cuartoId);
     client.to(message.cuartoId).broadcast.emit('usuarioDesconectado', message.usuarioId);
