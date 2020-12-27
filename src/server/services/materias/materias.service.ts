@@ -43,7 +43,7 @@ export class MateriasService {
   async update(id: string, updateMateriaDto: MateriaModel): Promise<UsuarioModel> {
     try {
       // recogiendo datos...
-      const { descripcion, observacion} = updateMateriaDto;
+      const { descripcion, observacion } = updateMateriaDto;
       // return...
       return await this.materiaModel.findByIdAndUpdate(
         id,

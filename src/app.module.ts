@@ -9,6 +9,9 @@ import { typeGooseConexion } from 'libs/database/typegoose.conexion';
 import { LectivosModule } from './server/modules/lectivos/lectivos.module';
 import { ConferenciasModule } from './server/modules/conferencias/conferencias.module';
 import { SesionesModule } from './server/modules/sesiones/sesiones.module';
+import { NotificacionesModule } from './server/modules/notificaciones/notificaciones.module';
+import { SecuenciasService } from './server/services/secuencias/secuencias/secuencias.service';
+import { SecuenciasModule } from './server/modules/secuencias/secuencias.module';
 
 @Module({
   imports: [
@@ -24,6 +27,9 @@ import { SesionesModule } from './server/modules/sesiones/sesiones.module';
     MateriasModule, 
     LectivosModule, 
     ConferenciasModule, 
-    SesionesModule]
+    SesionesModule, 
+    NotificacionesModule, 
+    SecuenciasModule],
+  providers: [SecuenciasService]
 })
 export class AppModule {}

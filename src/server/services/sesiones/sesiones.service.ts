@@ -1,23 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { ReturnModelType, types } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
-import { SesionesEntity } from 'src/server/models/sesiones/entities/sesione.entity';
-import { UsuarioModel } from 'src/server/models/usuarios/usuario.model';
-import { CreateSesioneDto } from '../../dtos/sesiones/create-sesione.dto';
-import { UpdateSesioneDto } from '../../dtos/sesiones/update-sesione.dto';
+import { SesionesModel } from '../../models/sesiones/sesion.model';
+import { UsuarioModel } from '../../models/usuarios/usuario.model';
 import { UsuariosService } from '../usuarios/usuarios.service';
+import { ClientesService } from '../perfiles/clientes/clientes.service';
+
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
+import { Types } from 'mongoose';
 
 @Injectable()
 export class SesionesService {
 
   constructor(
-    @InjectModel(SesionesEntity) private readonly sesionesEntity: ReturnModelType<typeof SesionesEntity>,
-    private readonly usuariosService: UsuariosService
+    @InjectModel(SesionesModel) private readonly sesionesModel: ReturnModelType<typeof SesionesModel>,
+    private readonly usuariosService: UsuariosService,
+    private readonly clientesService: ClientesService
   ) {}
   
-  async create(usuario: string, createSesioneDto: SesionesEntity) {
+  async create(usuario: string, createSesioneDto: SesionesModel) {
     try {
       // retornamos el id del usuario...
       const usuarioModel: UsuarioModel = await this.usuariosService.retornaUsuario(usuario);
@@ -26,7 +28,7 @@ export class SesionesService {
       // creamos el uuid...
       createSesioneDto.sesion_identificador = uuidv4();
       // nueva sesion...
-      const nuevaSesion = new this.sesionesEntity(createSesioneDto);
+      const nuevaSesion = new this.sesionesModel(createSesioneDto);
       // auditoria...
       nuevaSesion.auditoria = {
         estado: true,
@@ -40,28 +42,55 @@ export class SesionesService {
   }
 
   async findAll(usuario: string, estado: boolean = true) {
-    // retornamos el id del usuario...
-    const usuarioModel: UsuarioModel = await this.usuariosService.retornaUsuario(usuario);
-    // buscamos las sesiones que tenga el profesor...
-    // filtro...
-    const filtro = {
-      profesor_id: usuarioModel._id,
-      "auditoria.estado": estado
+    try {
+      // retornamos el id del usuario...
+      const usuarioModel: UsuarioModel = await this.usuariosService.retornaUsuario(usuario);
+      // buscamos las sesiones que tenga el profesor...
+      // filtro...
+      const filtro = {
+        profesor_id: usuarioModel._id,
+        "auditoria.estado": estado
+      }
+      // return...
+      return await this.sesionesModel
+        .aggregate([
+          {
+            $match: filtro
+          },  {
+            $project: {
+              fecha_hora_inicio: 1,
+              fecha_hora_final: 1,
+              descripcion: 1,
+              observacion: 1,
+              profesor_id: 1,
+              sesion_identificador: 1,
+              representantes: {
+                $filter: {
+                  input: "$representantes",
+                  as: "rep",
+                  cond: {
+                    $eq: ["$$rep.auditoria.estado", estado]
+                  }
+                }
+              }
+            }
+          }
+        ]);
+    } catch (error) {
+      throw error;
     }
-    // return...
-    return await this.sesionesEntity.find(filtro);
   }
 
   findOne(id: number) {
     return `This action returns a #${id} sesione`;
   }
 
-  async update(id: string, updateSesioneDto: SesionesEntity) {
+  async update(id: string, updateSesioneDto: SesionesModel) {
     try {
       // recogiendo datos...
       const { descripcion, observacion, fecha_hora_inicio, fecha_hora_final } = updateSesioneDto;
       // return...
-      return await this.sesionesEntity.findByIdAndUpdate(
+      return await this.sesionesModel.findByIdAndUpdate(
         id,
         {
           $set: {
@@ -83,7 +112,7 @@ export class SesionesService {
 
   async remove(id: string, estado: boolean = false) {
     try {
-      return await this.sesionesEntity.findByIdAndUpdate(
+      return await this.sesionesModel.findByIdAndUpdate(
         id, 
         {
           $set: {
@@ -100,4 +129,130 @@ export class SesionesService {
       throw error;
     }
   }
+
+  async retornaParticipantesSesion(_id: string) {
+    try {
+      // retornamos la sesion...
+      const sesion = await this.sesionesModel.findOne({
+        _id
+      });
+      // recoge solo los identificadores de las materias...
+      let representantes: any = sesion.representantes.map(representante => {
+        // busca solo activos...
+        if(representante.auditoria.estado === true) {
+          return representante.representante_id;
+        }
+      });
+      // recogemos los representantes...
+      return await this.clientesService.representantesSesiones(representantes);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async registraRepresentanteSesion(representanteID: string, sesionID: string) {
+    try {
+      // retornamos la sesion...
+      return await this.sesionesModel.findByIdAndUpdate(sesionID, {
+        $addToSet: {
+          representantes: {
+            representante_id: Types.ObjectId(representanteID),
+            autidoria: {
+              fecha_ins: moment().utc().toDate()
+            }
+          }
+        }
+      },  {
+        new: true
+      });      
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async retornaListaRepresentantesSesion(sesionID: string, estado: boolean = true) {
+    try {
+      return await this.sesionesModel.aggregate([
+        {
+            $match: {
+              _id: Types.ObjectId(sesionID)
+            }
+        },  {
+            $unwind: "$representantes"
+        },  {
+            $match: {
+                "representantes.auditoria.estado": estado
+            }
+        },  {
+            $lookup: {
+              from: 'representantes',
+              localField: 'representantes.representante_id',
+              foreignField: '_id',
+              as: 'sesion_representantes'            
+            }
+        },  {
+            $unwind: "$sesion_representantes"
+        },  {
+            $lookup: {
+              from: 'usuarios',
+              localField: 'sesion_representantes.usuario_id',
+              foreignField: '_id',
+              as: 'usuario'
+            }
+        },  {
+            $unwind: "$usuario"
+        },  {
+            $addFields: {
+              representantes_sesion: {
+                "usuario": "$usuario",
+                "hijos": "$sesion_representantes.hijos",
+                "auditoria": "$representantes"
+              }
+            }
+        },  {
+            $project: {
+              representantes_sesion: {
+                "usuario": 1,
+                "hijos": {
+                  $filter: {
+                    input: "$representantes_sesion.hijos",
+                    as: "h",
+                    cond: {
+                      $eq: ["$$h.auditoria.estado", true]
+                    }
+                  }
+                },
+                "auditoria": 1
+              }
+            }
+        }
+      ]);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async retirarRepresentanteSesion(sesionID: string, representanteID: string, estado: boolean = false) {
+    try {
+      return await this.sesionesModel.findOneAndUpdate({
+        _id: Types.ObjectId(sesionID),
+        "representantes.representante_id": Types.ObjectId(representanteID)
+      },  {
+        $set: {
+          "representantes.$[repID].auditoria.estado": estado,
+          "representantes.$[repID].auditoria.fecha_upd": moment().utc().toDate()
+        }
+      },  {
+        new: true,
+        arrayFilters: [
+          {
+            "repID.representante_id": Types.ObjectId(representanteID)
+          }
+        ]
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }

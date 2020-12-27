@@ -308,4 +308,49 @@ export class ClientesService {
         throw error;
       }
     }
+
+    async representantesSesiones(representantes: any = []) {
+      try {
+        return await this.representanteModel.aggregate([
+          {
+            $match: {
+              _id: {
+                $nin: representantes
+              }
+            }
+          },  {
+            $lookup: {
+              from: 'usuarios',
+              localField: 'usuario_id',
+              foreignField: '_id',
+              as: 'datos'
+            }
+          },  {
+            $addFields: {
+              "datos": {
+                "$arrayElemAt": ["$datos", 0]
+              }
+            }
+          },  {
+            $project: {
+              datos: {
+                nombre_completo: 1,
+                imagen_url: 1
+              },
+              hijos: {
+                $filter: {
+                  input: "$hijos",
+                  as: "hijo",
+                  cond: {
+                    $eq: ["$$hijo.auditoria.estado", false]
+                  }
+                }
+              }
+            }
+          }
+        ]);
+      } catch (error) {
+        throw error;
+      }
+    }
 }

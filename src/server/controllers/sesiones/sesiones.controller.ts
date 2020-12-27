@@ -1,18 +1,19 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, Query, Req } from '@nestjs/common';
 import { SesionesService } from '../../services/sesiones/sesiones.service';
-import { CreateSesioneDto } from '../../dtos/sesiones/create-sesione.dto';
-import { UpdateSesioneDto } from '../../dtos/sesiones/update-sesione.dto';
-import { SesionesEntity } from 'src/server/models/sesiones/entities/sesione.entity';
+import { SesionesModel } from 'src/server/models/sesiones/sesion.model';
 
 @Controller('sesiones')
 export class SesionesController {
+
   constructor(private readonly sesionesService: SesionesService) {}
 
   @Post()
   create(@Body() body) {
     try {
+      // desestructurando el objeto...
+      const { usuario, sesion } = body;
       // retornando el objeto...
-      return this.sesionesService.create(body.usuario, body.sesion);
+      return this.sesionesService.create(usuario, sesion);
     } catch (error) {
       throw error;
     }
@@ -30,13 +31,57 @@ export class SesionesController {
     }
   }
 
+  @Get('representantes')
+  retornaRepresentatesSesion(@Query() query) {
+    try {
+      const { id } = query;
+      // return...
+      return this.sesionesService.retornaParticipantesSesion(id);      
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Post('representantes')
+  registraRepresentatesSesion(@Body() body) {
+    try {
+      const { representanteID, sesionID } = body;
+      // return...
+      return this.sesionesService.registraRepresentanteSesion(representanteID, sesionID);      
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Get('representantes/lista')
+  retornaListaRepresentantesSesion(@Query() query) {
+    try {
+      const { sesionID } = query;
+      // return...
+      return this.sesionesService.retornaListaRepresentantesSesion(sesionID);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Post('representantes/retirar')
+  retirarRepresentantesSesion(@Body() body) {
+    try {
+      const { sesionID, representanteID } = body;
+      // return...
+      return this.sesionesService.retirarRepresentanteSesion(sesionID, representanteID);
+    } catch (error) {
+      return error;
+    }
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.sesionesService.findOne(+id);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateSesioneDto: UpdateSesioneDto) {
+  update(@Param('id') id: string, @Body() updateSesioneDto: SesionesModel) {
     return this.sesionesService.update(id, updateSesioneDto);
   }
 
@@ -44,5 +89,5 @@ export class SesionesController {
   remove(@Param('id') id: string) {
     return this.sesionesService.remove(id);
   }
-  
+
 }

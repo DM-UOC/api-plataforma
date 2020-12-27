@@ -1,11 +1,12 @@
 import { prop } from "@typegoose/typegoose";
 import { Types } from "mongoose";
 import moment from "moment";
-import { AuditoriaModel } from "../../comuns/auditoria.model";
+import { AuditoriaModel } from "../comuns/auditoria.model";
+import { RepresentanteSesionModel } from "./representante.sesion.model";
 
-export class SesionesEntity {
+export class SesionesModel {
 
-    readonly _id?: string;
+    public readonly _id?: Types.ObjectId;
 
     @prop({ required: true })
     profesor_id?: Types.ObjectId;
@@ -28,6 +29,9 @@ export class SesionesEntity {
     @prop({ default: false })
     concluida?: boolean;
 
-    @prop({ type: AuditoriaModel })
+    @prop({ _id: false, type: RepresentanteSesionModel })
+    representantes: RepresentanteSesionModel[];
+
+    @prop({ _id: false, type: AuditoriaModel })
     auditoria?: AuditoriaModel;
 }

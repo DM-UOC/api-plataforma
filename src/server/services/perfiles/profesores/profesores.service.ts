@@ -251,6 +251,7 @@ export class ProfesoresService {
     }
 
     async retornaMateriasPorProfesor(usuario_id: string) {
+      // objeto a regresar...
       const retornaProfesor = new this.profesorModel();
       // valores del profesor...
       const profesor = await this.profesorModel.findOne({
