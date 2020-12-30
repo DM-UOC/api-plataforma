@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common'
 import { NotificacionesService } from '../../services/notificaciones/notificaciones.service';
 import { CreateNotificacioneDto } from '../../models/notificaciones/dto/create-notificacione.dto';
 import { UpdateNotificacioneDto } from '../../models/notificaciones/dto/update-notificacione.dto';
+import { NotificacionModel } from '../../../server/models/notificaciones/notificacion.model';
 
 @Controller('notificaciones')
 export class NotificacionesController {
@@ -9,7 +10,7 @@ export class NotificacionesController {
   constructor(private readonly notificacionesService: NotificacionesService) {}
 
   @Post()
-  create(@Body() createNotificacioneDto: CreateNotificacioneDto) {
+  create(@Body() createNotificacioneDto: NotificacionModel) {
     return this.notificacionesService.create(createNotificacioneDto);
   }
 

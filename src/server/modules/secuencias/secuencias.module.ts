@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { SecuenciaModel } from 'src/server/models/secuencias/secuencia.model';
-import { SecuenciasService } from 'src/server/services/secuencias/secuencias/secuencias.service';
+import { SecuenciasService } from '../../services/secuencias/secuencias.service';
 
 @Module({
     imports: [

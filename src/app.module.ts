@@ -10,7 +10,6 @@ import { LectivosModule } from './server/modules/lectivos/lectivos.module';
 import { ConferenciasModule } from './server/modules/conferencias/conferencias.module';
 import { SesionesModule } from './server/modules/sesiones/sesiones.module';
 import { NotificacionesModule } from './server/modules/notificaciones/notificaciones.module';
-import { SecuenciasService } from './server/services/secuencias/secuencias/secuencias.service';
 import { SecuenciasModule } from './server/modules/secuencias/secuencias.module';
 
 @Module({
@@ -29,7 +28,7 @@ import { SecuenciasModule } from './server/modules/secuencias/secuencias.module'
     ConferenciasModule, 
     SesionesModule, 
     NotificacionesModule, 
-    SecuenciasModule],
-  providers: [SecuenciasService]
+    SecuenciasModule
+  ]
 })
 export class AppModule {}

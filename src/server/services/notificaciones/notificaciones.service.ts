@@ -1,11 +1,111 @@
+import moment from "moment";
+import { Globals } from "../../../../libs/config/globals";
+declare const global: Globals;
+
 import { Injectable } from '@nestjs/common';
+import { ReturnModelType } from '@typegoose/typegoose';
+import { InjectModel } from 'nestjs-typegoose';
+import { NotificacionModel } from '../../../server/models/notificaciones/notificacion.model';
 import { CreateNotificacioneDto } from '../../models/notificaciones/dto/create-notificacione.dto';
 import { UpdateNotificacioneDto } from '../../models/notificaciones/dto/update-notificacione.dto';
+import { SecuenciasService } from '../secuencias/secuencias.service';
+import { SesionesModel } from "src/server/models/sesiones/sesion.model";
+import { SecuenciaModel } from "src/server/models/secuencias/secuencia.model";
+import { ClientesService } from "../perfiles/clientes/clientes.service";
+import { ProfesoresService } from "../perfiles/profesores/profesores.service";
+import { CatalogosService } from "../catalogos/catalogos.service";
 
 @Injectable()
 export class NotificacionesService {
-  create(createNotificacioneDto: CreateNotificacioneDto) {
-    return 'This action adds a new notificacione';
+
+  constructor(
+    @InjectModel(NotificacionModel) private readonly notificacionModel: ReturnModelType<typeof NotificacionModel>,
+    private readonly secuenciasService: SecuenciasService,
+    private readonly clientesService: ClientesService,
+    private readonly profesoresService: ProfesoresService,
+    private readonly catalogosService: CatalogosService
+  ) {}
+
+  private async generaSecuencial(secuencialID: string) {
+    try {
+      // creando la secuencia...
+      const row: SecuenciaModel = await this.secuenciasService.creaSecuencia(secuencialID);
+      // retornando...
+      return row.secuencia;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async creaNotificacionSesion(sesion: SesionesModel, representanteID: string, secuencialID: string) {
+    try {
+      // configuración...
+      const { catalogos } = global.$config;
+      const { notificaciones } = catalogos;
+      const { tipoHijos } = notificaciones;      
+      // retornando la secuencia para la notificacion...
+      const notificacionID: number = await this.generaSecuencial(secuencialID); 
+      // objeto notificacion..
+      const createNotificacioneDto = new this.notificacionModel(); 
+      // datos de la notificacion...
+      // catalogos...
+      const catalogo = await this.catalogosService.retornaCatalogPorCodigo(tipoHijos.tipoSesion);
+      // profesor...
+      const profesor = await this.profesoresService.buscaPorId(sesion.profesor_id.toString());
+      // representante...
+      const representante = await this.clientesService.buscaPorId(representanteID);
+      // seteo de la notificacion...
+      createNotificacioneDto.catalogo_id._id = catalogo._id;
+      createNotificacioneDto.catalogo_id.descripcion = catalogo.descripcion;
+      createNotificacioneDto.profesor_id._id = profesor[0]._id;
+      createNotificacioneDto.profesor_id.nombres = profesor[0].usuario.nombre_completo;
+      createNotificacioneDto.representante_id._id = representante[0]._id;
+      createNotificacioneDto.representante_id.nombres = representante[0].usuario.nombre_completo;
+      createNotificacioneDto.descripcion = sesion.descripcion;
+      // cuerpo de la notificaicion...
+      createNotificacioneDto.cuerpo_notificacion = {
+        id: notificacionID,
+        title: sesion.descripcion,
+        body: sesion.observacion,
+        iconColor: catalogo.cadena2,
+        extra: {
+          data: JSON.stringify({
+            descripcion: sesion.descripcion,
+            fecha_hora_inicio: sesion.fecha_hora_inicio,
+            fecha_hora_final: sesion.fecha_hora_final
+          })
+        },
+        auditoria: {
+          estado: true,
+          fecha_ins: moment().utc().toDate()
+        }
+      }
+      // auditoria...
+      createNotificacioneDto.auditoria = {
+        estado: true,
+        fecha_ins: moment().utc().toDate()
+      }
+      // crea la notificacion...
+      return await createNotificacioneDto.save();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async create(createNotificacioneDto: NotificacionModel) {
+    try {
+      // instanacia...
+      const nuevaNotificacion = new this.notificacionModel(createNotificacioneDto);
+      // auditoria...
+      nuevaNotificacion.auditoria = {
+        estado: true,
+        fecha_ins: moment().utc().toDate()
+      }
+      // crea la notificacion...
+      return await nuevaNotificacion.save();
+    } catch (error) {
+      throw error;
+    }
   }
 
   findAll() {

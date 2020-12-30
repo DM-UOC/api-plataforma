@@ -1,14 +1,19 @@
+import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
+import { Types } from 'mongoose';
+import { Globals } from "../../../../libs/config/globals";
+declare const global: Globals;
+
 import { Injectable } from '@nestjs/common';
-import { ReturnModelType, types } from '@typegoose/typegoose';
+import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
 import { SesionesModel } from '../../models/sesiones/sesion.model';
 import { UsuarioModel } from '../../models/usuarios/usuario.model';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { ClientesService } from '../perfiles/clientes/clientes.service';
-
-import moment from "moment";
-import { v4 as uuidv4 } from "uuid";
-import { Types } from 'mongoose';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
+import { ProfesorModel } from "src/server/models/profesores/profesor.model";
+import { ProfesoresService } from "../perfiles/profesores/profesores.service";
 
 @Injectable()
 export class SesionesService {
@@ -16,15 +21,19 @@ export class SesionesService {
   constructor(
     @InjectModel(SesionesModel) private readonly sesionesModel: ReturnModelType<typeof SesionesModel>,
     private readonly usuariosService: UsuariosService,
-    private readonly clientesService: ClientesService
+    private readonly clientesService: ClientesService,
+    private readonly profesoresService: ProfesoresService,
+    private readonly notificacionesService: NotificacionesService
   ) {}
   
   async create(usuario: string, createSesioneDto: SesionesModel) {
     try {
       // retornamos el id del usuario...
       const usuarioModel: UsuarioModel = await this.usuariosService.retornaUsuario(usuario);
+      // buscamos el id del profesor...
+      const profesorModel: ProfesorModel = await this.profesoresService.findOne(usuarioModel._id.toString());
       // seteamos el id...
-      createSesioneDto.profesor_id = usuarioModel._id;
+      createSesioneDto.profesor_id = profesorModel._id;
       // creamos el uuid...
       createSesioneDto.sesion_identificador = uuidv4();
       // nueva sesion...
@@ -45,10 +54,12 @@ export class SesionesService {
     try {
       // retornamos el id del usuario...
       const usuarioModel: UsuarioModel = await this.usuariosService.retornaUsuario(usuario);
+      // buscamos el id del profesor...
+      const profesorModel: ProfesorModel = await this.profesoresService.findOne(usuarioModel._id.toString());
       // buscamos las sesiones que tenga el profesor...
       // filtro...
       const filtro = {
-        profesor_id: usuarioModel._id,
+        profesor_id: profesorModel._id,
         "auditoria.estado": estado
       }
       // return...
@@ -150,14 +161,15 @@ export class SesionesService {
     }
   }
 
-  async registraRepresentanteSesion(representanteID: string, sesionID: string) {
+  private async creaRepresentanteSesion(representanteID: string, sesionID: string) {
     try {
       // retornamos la sesion...
       return await this.sesionesModel.findByIdAndUpdate(sesionID, {
         $addToSet: {
           representantes: {
             representante_id: Types.ObjectId(representanteID),
-            autidoria: {
+            auditoria: {
+              estado: true,
               fecha_ins: moment().utc().toDate()
             }
           }
@@ -165,6 +177,32 @@ export class SesionesService {
       },  {
         new: true
       });      
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private async creaNotificacion(sesionModel: SesionesModel, representanteID: string) {
+    try {
+      // configuración...
+      const { secuencias } = global.$config;
+      const { notificacion } = secuencias;
+      const { sesion } = notificacion;
+      // retornamos el tipo de catalogo notificacion...
+      return await this.notificacionesService.creaNotificacionSesion(sesionModel, representanteID, sesion)
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async registraRepresentanteSesion(representanteID: string, sesionID: string) {
+    try {
+      // crea el representante sesión...
+      const sesionModel = await this.creaRepresentanteSesion(representanteID, sesionID);
+      // crea la notificacion...
+      await this.creaNotificacion(sesionModel, representanteID);
+      // retornamos...
+      return sesionModel;
     } catch (error) {
       throw error;
     }

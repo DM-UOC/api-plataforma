@@ -1,6 +1,6 @@
 ---
 production: &default
-  port: 3025
+  port: 3030
   security:
     secret: -:vE?8f!)8XZ!T{A,beK%6@Y2-y:/"f)g!Pn\!(s\?);^@T,<w%M#e>]jf=y>aB"6$]~sf?XH$}?b$T;CttdH`m)V668$EtZwTeFK9qvdL=4D>]dn%@\9>ym;A2?ZRF?
     maxAge: 60 * 60 # 60 minutos de duración # 60 * 60 * 24 <-> 24 horas de duración...
@@ -14,6 +14,14 @@ production: &default
     tipoAdministrador: TPS_ADMIN
     tipoProfesor: TPS_PROFESOR
     tipoCliente: TPS_CLIENTE
+    notificaciones:
+      tipoPadre: TIPO_NOTIFICAION
+      tipoHijos:
+        tipoSesion: TIP_NOT_SESION
+        tipoTarea: TIP_NOT_TAREA
+  secuencias:
+    notificacion:
+      sesion: SESION_ID
   dataBase:
     servidor: localhost
     nombre: plataforma
@@ -38,10 +46,6 @@ development:
       clave: admin
       temporal:
         clave: t3mp0r@l
-    catalogos:
-      tipoAdministrador: TPS_ADMIN
-      tipoProfesor: TPS_PROFESOR
-      tipoCliente: TPS_CLIENTE
     dataBase:
       servidor: localhost
       nombre: plataforma

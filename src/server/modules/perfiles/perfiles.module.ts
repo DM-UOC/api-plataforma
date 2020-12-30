@@ -65,6 +65,7 @@ import { MateriasModule } from '../materias/materias.module';
     MateriasModule
   ],
   exports: [
+    ProfesoresService,
     ClientesService
   ],
   controllers: [AdministradoresController, ProfesoresController, ClientesController],

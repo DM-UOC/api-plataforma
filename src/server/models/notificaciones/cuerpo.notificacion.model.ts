@@ -21,6 +21,6 @@ export class CuerpoNotificacionModel {
     iconColor?: string;
 
     @prop({ _id: false, type: AuditoriaModel })
-    auditoria: AuditoriaModel;
+    auditoria?: AuditoriaModel;
     
 }

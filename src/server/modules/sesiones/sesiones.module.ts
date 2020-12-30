@@ -5,6 +5,7 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { SesionesModel } from '../../models/sesiones/sesion.model';
 import { UsuariosModule } from '../usuarios/usuarios.module';
 import { PerfilesModule } from '../perfiles/perfiles.module';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { PerfilesModule } from '../perfiles/perfiles.module';
       }
     ]),
     UsuariosModule,
-    PerfilesModule
+    PerfilesModule,
+    NotificacionesModule
   ],
   controllers: [SesionesController],
   providers: [SesionesService]

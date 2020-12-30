@@ -138,8 +138,10 @@ export class ProfesoresService {
         }
       }
     
-      findOne(id: number) {
-        return `This action returns a #${id} administradore`;
+      async findOne(id: string) {
+        return await this.profesorModel.findOne({
+          usuario_id: Types.ObjectId(id)
+        });
       }
     
       async update(id: string, file: any, usuarioModel: UsuarioModel): Promise<UsuarioModel> {
@@ -294,4 +296,30 @@ export class ProfesoresService {
       }
     }
     
+    async buscaPorId(_id: string) {
+      return await this.profesorModel
+        .aggregate([
+          {
+            $match: {
+              _id: Types.ObjectId(_id)
+            }
+          },  {
+            $lookup: {
+              from: 'usuarios',
+              localField: 'usuario_id',
+              foreignField: '_id',
+              as: 'usuario'
+            }
+          },  {
+            $unwind: '$usuario'
+          },  {
+            $project: {
+              _id: 1,
+              usuario: {
+                nombre_completo: 1
+              }              
+            }
+          }
+      ]);
+    }    
 }

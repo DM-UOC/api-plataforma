@@ -6,6 +6,8 @@ import { MateriaProfesorModel } from "./materia.profesor.model";
 
 export class ProfesorModel {
 
+    readonly _id?: Types.ObjectId;
+    
     @prop({ required: true })
     public usuario_id?: Types.ObjectId;
 

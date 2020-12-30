@@ -353,4 +353,32 @@ export class ClientesService {
         throw error;
       }
     }
+
+    async buscaPorId(_id: string) {
+      return await this.representanteModel
+        .aggregate([
+          {
+            $match: {
+              _id: Types.ObjectId(_id)
+            }
+          },  {
+            $lookup: {
+              from: 'usuarios',
+              localField: 'usuario_id',
+              foreignField: '_id',
+              as: 'usuario'
+            }
+          },  {
+            $unwind: '$usuario'
+          },  {
+            $project: {
+              _id: 1,
+              usuario: {
+                nombre_completo: 1
+              }              
+            }
+          }
+        ]);
+    }
+
 }

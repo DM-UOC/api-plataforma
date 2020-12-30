@@ -15,17 +15,18 @@ import { Logger } from '@nestjs/common';
 @WebSocketGateway()
 export class ConferenciasGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
-  @WebSocketServer() server: Server;
-
   private numeroUsuarios: number = 0;
   private logger: Logger = new Logger('NestjsSocket');
 
-  constructor(
-    private readonly conferenciasService: ConferenciasService
-  ) {}
+  @WebSocketServer() server: Server;
 
-  afterInit(server: Server) {
-    this.logger.log('************ INICIANDO GETAWAY ************');
+  handleConnection(client: Socket, ...args: any[]) {
+    // validaciones extras...
+    this.logger.log(`cliente conectado: ${client.id}`);
+    // usuario se conecta...
+    this.numeroUsuarios++;
+    // emisión actualizado de usuarios...
+    this.server.emit('numero-usuarios', this.numeroUsuarios);
   }
 
   handleDisconnect(client: Socket) {
@@ -33,85 +34,19 @@ export class ConferenciasGateway implements OnGatewayInit, OnGatewayConnection, 
     // usuario desconecta...
     this.numeroUsuarios--;
     // emisión actualizado de usuarios...
-    this.server.emit('usuarios', this.numeroUsuarios);    
-  }
-  
-  handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log(`cliente conectado: ${client.id}`);
-    // usuario se conecta...
-    this.numeroUsuarios++;
-    // emisión actualizado de usuarios...
-    this.server.emit('usuarios', this.numeroUsuarios);
+    this.server.emit('numero-usuarios', this.numeroUsuarios);
   }
 
-  @SubscribeMessage('createConferencia')
-  // create(@MessageBody() createConferenciaDto: CreateConferenciaDto) {
-  create(client: Socket, data: string): WsResponse<string> {
-    return {
-      event: 'mensajeCliente',
-      data
-    };
-    //return this.conferenciasService.create(createConferenciaDto);
+  afterInit(server: any) {
+    this.logger.log('************ INICIANDO GETAWAY ************');
   }
 
-  @SubscribeMessage('findAllConferencias')
-  findAll() {
-    return this.conferenciasService.findAll();
-  }
-
-  @SubscribeMessage('findOneConferencia')
-  findOne(@MessageBody() id: number) {
-    return this.conferenciasService.findOne(id);
-  }
-
-  /*
-  @SubscribeMessage('updateConferencia')
-  update(@MessageBody() updateConferenciaDto: UpdateConferenciaDto) {
-    return this.conferenciasService.update(updateConferenciaDto.id, updateConferenciaDto);
-  }
-  */
- 
-  @SubscribeMessage('removeConferencia')
-  remove(@MessageBody() id: number) {
-    return this.conferenciasService.remove(id);
-  }
-
-  @SubscribeMessage('usuario-unirse')
-  // create(@MessageBody() createConferenciaDto: CreateConferenciaDto) {
-  usuarioUnirse(client: Socket, data: string): void { // WsResponse<string>
-    // enviando mensaje al cliente...
-    this.server.emit('mensaje-cliente', data);
-    /*
-    return {
-      event: 'mensaje-cliente',
-      data
-    };
-    */
-    //return this.conferenciasService.create(createConferenciaDto);
-  }
-
-  @SubscribeMessage('chat')
-  async onChat(client: Socket, message: string){
-      client.broadcast.emit('chat', message);
-  }
-
-  @SubscribeMessage('chatToServer')
-  handleMessage(client: Socket, message: { sender: string, room: string, message: string }) {
-    this.server.to(message.room).emit('chatToClient', message);
-  }
-
-  @SubscribeMessage('uneSesion')
-  handleRoomJoin(client: Socket, message: { cuartoId: string, usuarioId: string } ) {
-    client.join(message.cuartoId);
-    client.to(message.cuartoId).broadcast.emit('usuarioConectado', message.usuarioId);
-    // client.emit('joinedRoom', message.roomId);
-  }
-
-  @SubscribeMessage('dejaSesion')
-  handleRoomLeave(client: Socket, message: { cuartoId: string, usuarioId: string } ) {
-    client.leave(message.cuartoId);
-    client.to(message.cuartoId).broadcast.emit('usuarioDesconectado', message.usuarioId);
-    //client.emit('leftRoom', room);
+  @SubscribeMessage('envia-servidor-peerid')
+  async enviaServidorPeerId(client: Socket, peerId: string) {
+    client.broadcast.emit('emite-datos-conexion', {
+      socketId: client.id,
+      peerId
+    });
   }
 
 }

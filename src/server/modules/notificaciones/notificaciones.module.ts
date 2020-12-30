@@ -5,6 +5,8 @@ import { NotificacionesService } from '../../services/notificaciones/notificacio
 import { NotificacionesController } from '../../controllers/notificaciones/notificaciones.controller';
 import { NotificacionModel } from '../../../server/models/notificaciones/notificacion.model';
 import { SecuenciasModule } from '../secuencias/secuencias.module';
+import { PerfilesModule } from '../perfiles/perfiles.module';
+import { CatalogosModule } from '../catalogos/catalogos.module';
 
 @Module({
   imports: [
@@ -17,7 +19,12 @@ import { SecuenciasModule } from '../secuencias/secuencias.module';
         }
       },
     ]),
-    SecuenciasModule
+    SecuenciasModule,
+    PerfilesModule,
+    CatalogosModule
+  ],
+  exports: [
+    NotificacionesService
   ],
   controllers: [NotificacionesController],
   providers: [NotificacionesService]

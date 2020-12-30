@@ -27,10 +27,10 @@ export class CatalogoModel {
     public cadena1?: string;
 
     @prop({ default: '' })
-    public cadena2?: number;
+    public cadena2?: string;
 
     @prop({ default: '' })
-    public cadena3?: number;
+    public cadena3?: string;
 
     @prop({ _id: false })
     public arreglo1?: MenuModel[];
