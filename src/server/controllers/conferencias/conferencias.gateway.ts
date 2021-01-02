@@ -17,6 +17,7 @@ export class ConferenciasGateway implements OnGatewayInit, OnGatewayConnection, 
 
   private numeroUsuarios: number = 0;
   private logger: Logger = new Logger('NestjsSocket');
+  private listaClientesVivo: any [] = [];
 
   @WebSocketServer() server: Server;
 
@@ -33,12 +34,47 @@ export class ConferenciasGateway implements OnGatewayInit, OnGatewayConnection, 
     this.logger.log(`cliente desconectado: ${client.id}`);
     // usuario desconecta...
     this.numeroUsuarios--;
+    // si se desconecta... eliminamos del arreglo...
+    this.listaClientesVivo = this.listaClientesVivo.filter(clienteVivo => clienteVivo.clienteSocketId !== client.id);
     // emisión actualizado de usuarios...
     this.server.emit('numero-usuarios', this.numeroUsuarios);
   }
 
   afterInit(server: any) {
     this.logger.log('************ INICIANDO GETAWAY ************');
+  }
+
+  @SubscribeMessage('infoCliente')
+  async infoCliente(client: Socket, message: {
+    token: any,
+    peerId: string
+  }) {
+    // desectrucura el objeto...
+    const { token, peerId } = message;
+    // setea objeto a devolver...
+    let infoCliente = {
+      tokenCliente: token,
+      peerIdCliente: peerId,
+      clienteSocketId: client.id
+    };
+    // registra usuarios en vivo en el arreglo...
+    this.listaClientesVivo.push(infoCliente);
+    // emision de usuario...
+    this.server.emit('emiteInfoCliente', {
+      tokenCliente: infoCliente.tokenCliente,
+      listaClientes: this.listaClientesVivo
+    });
+  }
+
+  @SubscribeMessage('llamadaPara')
+  async llamadaPara(client: Socket, message: any) {
+    // desestrucutra el mensaje...
+    const  { clienteSocketId } = message;
+    // enviamos el mensaje al cliente...
+    client.to(clienteSocketId).emit('llamadaDesde', message);
+    // client.emit('lamadaDesde', message);
+    // this.server.emit('lamadaDesde', token);
+    // client.broadcast.emit('lamadaDesde', message);
   }
 
   @SubscribeMessage('envia-servidor-peerid')
