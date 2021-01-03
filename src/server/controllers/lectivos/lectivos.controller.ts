@@ -31,12 +31,13 @@ export class LectivosController {
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateLectivoDto: UpdateLectivoDto) {
-    return this.lectivosService.update(+id, updateLectivoDto);
+    // actualiza el periodo lectivo...
+    return this.lectivosService.update(id, updateLectivoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.lectivosService.remove(+id);
+    return this.lectivosService.remove(id);
   }
 
   @Post('/parciales')

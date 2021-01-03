@@ -14,6 +14,7 @@ import { SecuenciaModel } from "src/server/models/secuencias/secuencia.model";
 import { ClientesService } from "../perfiles/clientes/clientes.service";
 import { ProfesoresService } from "../perfiles/profesores/profesores.service";
 import { CatalogosService } from "../catalogos/catalogos.service";
+import { Types } from "mongoose";
 
 @Injectable()
 export class NotificacionesService {
@@ -55,12 +56,12 @@ export class NotificacionesService {
       // representante...
       const representante = await this.clientesService.buscaPorId(representanteID);
       // seteo de la notificacion...
-      createNotificacioneDto.catalogo_id._id = catalogo._id;
-      createNotificacioneDto.catalogo_id.descripcion = catalogo.descripcion;
-      createNotificacioneDto.profesor_id._id = profesor[0]._id;
-      createNotificacioneDto.profesor_id.nombres = profesor[0].usuario.nombre_completo;
-      createNotificacioneDto.representante_id._id = representante[0]._id;
-      createNotificacioneDto.representante_id.nombres = representante[0].usuario.nombre_completo;
+      createNotificacioneDto.catalogo._id = catalogo._id;
+      createNotificacioneDto.catalogo.descripcion = catalogo.descripcion;
+      createNotificacioneDto.profesor._id = profesor[0]._id;
+      createNotificacioneDto.profesor.nombres = profesor[0].usuario.nombre_completo;
+      createNotificacioneDto.representante._id = representante[0]._id;
+      createNotificacioneDto.representante.nombres = representante[0].usuario.nombre_completo;
       createNotificacioneDto.descripcion = sesion.descripcion;
       // cuerpo de la notificaicion...
       createNotificacioneDto.cuerpo_notificacion = {
@@ -122,5 +123,30 @@ export class NotificacionesService {
 
   remove(id: number) {
     return `This action removes a #${id} notificacione`;
+  }
+
+  async encontrarPorRepresentante(representante_id: string, estado: boolean = true) {
+    // filtro...
+    const filtro = {
+      "representante_id._id": Types.ObjectId(representante_id),
+      "auditoria.estado": estado
+    };
+    // agreggate ....
+    return await this.notificacionModel.aggregate([
+      {
+        $match: filtro
+      },  {
+        $project: {
+          descripcion: 1,
+          cuerpo_notificacion: {
+            body: 1,
+            extra: 1,
+            iconColor: 1,
+            id: 1,
+            title: 1            
+          }
+        }
+      }
+    ]);
   }
 }

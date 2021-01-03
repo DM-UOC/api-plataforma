@@ -18,6 +18,9 @@ export class ParcialModel {
     @prop({ default: 0, min: 0 })
     public puntaje_objetivo?: number;
   
+    @prop({ default: true })
+    activo?: boolean;
+
     @prop({ _id: false, ref: AuditoriaModel })
     public auditoria?: AuditoriaModel;
         

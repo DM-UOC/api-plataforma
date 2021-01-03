@@ -12,7 +12,7 @@ export class NotificacionModel {
             descripcion: ''
         }
     })
-    catalogo_id?: {
+    catalogo?: {
         _id?: Types.ObjectId;
         descripcion?: string;
     };
@@ -22,7 +22,7 @@ export class NotificacionModel {
             descripcion: ''
         }
     })
-    profesor_id: {
+    profesor: {
         _id: Types.ObjectId;
         nombres: string;
     };
@@ -32,7 +32,7 @@ export class NotificacionModel {
             descripcion: ''
         }
     })
-    representante_id: {
+    representante: {
         _id: Types.ObjectId;
         nombres: string;
     };
@@ -41,10 +41,10 @@ export class NotificacionModel {
     descripcion?: string;
 
     @prop({ _id: false, type: CuerpoNotificacionModel })
-    cuerpo_notificacion: CuerpoNotificacionModel;
+    cuerpo_notificacion?: CuerpoNotificacionModel;
 
     @prop({ required: true, default: false })
-    leido: boolean;
+    leido?: boolean;
 
     @prop({ _id: false, type: AuditoriaModel })
     auditoria?: AuditoriaModel;

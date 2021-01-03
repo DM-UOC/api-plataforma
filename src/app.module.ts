@@ -11,6 +11,7 @@ import { ConferenciasModule } from './server/modules/conferencias/conferencias.m
 import { SesionesModule } from './server/modules/sesiones/sesiones.module';
 import { NotificacionesModule } from './server/modules/notificaciones/notificaciones.module';
 import { SecuenciasModule } from './server/modules/secuencias/secuencias.module';
+import { TareasModule } from './server/modules/tareas/tareas.module';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { SecuenciasModule } from './server/modules/secuencias/secuencias.module'
     ConferenciasModule, 
     SesionesModule, 
     NotificacionesModule, 
-    SecuenciasModule
+    SecuenciasModule, TareasModule
   ]
 })
 export class AppModule {}

@@ -19,6 +19,11 @@ export class NotificacionesController {
     return this.notificacionesService.findAll();
   }
 
+  @Get('/representante/:id')
+  encontrarPorRepresentante(@Param('id') id: string) {
+    return this.notificacionesService.encontrarPorRepresentante(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.notificacionesService.findOne(+id);

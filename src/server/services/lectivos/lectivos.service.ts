@@ -42,12 +42,49 @@ export class LectivosService {
     return `This action returns a #${id} lectivo`;
   }
 
-  update(id: number, updateLectivoDto: UpdateLectivoDto) {
-    return `This action updates a #${id} lectivo`;
+  async update(id: string, updateLectivoDto: LectivoModel) {
+    try {
+      // recogiendo datos...
+      const { descripcion, puntaje_objetivo, fecha_inicio, fecha_final, } = updateLectivoDto;
+      // return...
+      return await this.lectivoModel.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            puntaje_objetivo,
+            fecha_inicio,
+            fecha_final,
+            descripcion,
+            auditoria: {
+              fecha_upd: moment().utc().toDate()
+            }
+          }
+        }, {
+          new: true
+      });      
+    } catch (error) {
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} lectivo`;
+  async remove(id: string, estado: boolean = false) {
+    try {
+      return await this.lectivoModel.findByIdAndUpdate(
+        id, 
+        {
+          $set: {
+            auditoria: {
+              estado,
+              fecha_upd: moment().utc().toDate()
+            }
+          }
+        },
+        {
+          new: true
+        });      
+    } catch (error) {
+      throw error;
+    }
   }
 
   public async createParcial(createLectivoDto: LectivoModel) {

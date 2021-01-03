@@ -22,6 +22,9 @@ export class LectivoModel {
     @prop({ type: ParcialModel })
     public parciales?: ParcialModel[];
  
+    @prop({ default: true })
+    activo?: boolean;
+    
     @prop({ _id: false, type: AuditoriaModel })
     public auditoria?: AuditoriaModel;
 
