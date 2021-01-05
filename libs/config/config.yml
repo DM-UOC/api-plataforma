@@ -21,7 +21,8 @@ production: &default
         tipoTarea: TIP_NOT_TAREA
   secuencias:
     notificacion:
-      sesion: SESION_ID
+      sesionID: SESION_ID
+      tareaID: TAREA_ID      
   dataBase:
     servidor: localhost
     nombre: plataforma

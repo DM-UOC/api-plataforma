@@ -4,7 +4,7 @@ import { Types } from "mongoose";
 export class ReferenciaDatosModel {
 
     @prop({ required: true })
-    _id?: Types.ObjectId;
+    id?: Types.ObjectId;
 
     @prop({ required: true, default: null })
     descripcion?: string;

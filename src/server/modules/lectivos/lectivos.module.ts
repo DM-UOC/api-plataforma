@@ -15,7 +15,10 @@ import { LectivoModel } from 'src/server/models/lectivos/lectivo.model';
             }
         }
     ])
-  ],  
+  ],
+  exports: [
+    LectivosService
+  ],
   controllers: [LectivosController],
   providers: [LectivosService]
 })

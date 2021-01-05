@@ -119,4 +119,26 @@ export class LectivosService {
       throw error;
     }
   }
+
+  async retornaParcialActivo(estado: boolean = true) {
+    return await this.lectivoModel.aggregate([
+      {
+        $match: {
+          activo: estado,
+          "auditoria.estado": estado,
+          "parciales.activo": estado        
+        }
+      },  {
+        $project: {
+          parciales: {
+            _id: 1,
+            puntaje_objetivo: 1,
+            fecha_inicio: 1,
+            fecha_final: 1,
+            descripcion: 1
+          }
+        }
+      }
+    ]); 
+  }
 }

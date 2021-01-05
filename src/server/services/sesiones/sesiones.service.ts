@@ -187,9 +187,9 @@ export class SesionesService {
       // configuración...
       const { secuencias } = global.$config;
       const { notificacion } = secuencias;
-      const { sesion } = notificacion;
+      const { sesionID } = notificacion;
       // retornamos el tipo de catalogo notificacion...
-      return await this.notificacionesService.creaNotificacionSesion(sesionModel, representanteID, sesion)
+      return await this.notificacionesService.creaNotificacionSesion(sesionModel, representanteID, sesionID);
     } catch (error) {
       throw error;
     }

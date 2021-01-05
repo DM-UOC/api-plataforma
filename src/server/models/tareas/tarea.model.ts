@@ -10,10 +10,10 @@ export class TareaModel {
     readonly _id?: Types.ObjectId;
 
     @prop({ _id: false, type: ReferenciaUsuarioModel })
-    profesor?: ReferenciaUsuarioModel
+    profesor?: ReferenciaUsuarioModel;
 
     @prop({ _id: false, type: ReferenciaDatosModel })
-    lectivo?: ReferenciaDatosModel;
+    parcial?: ReferenciaDatosModel;
 
     @prop({ required: true, trim: true })
     descripcion?: string;

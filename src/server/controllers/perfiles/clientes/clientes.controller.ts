@@ -38,6 +38,12 @@ export class ClientesController {
         return res.status(HttpStatus.OK).json(result);
     }
 
+    @Get('/hijos/:estado')
+    retornaRepresentantesHijos(@Param('estado') estado: string) {
+      // buscando datos...
+      return this.clientesService.retornaRepresentantesHijos((estado === 'true'));
+    }
+
     @Get('hijo/:id')
     public async findOneHijo(@Param('id') id: string, @Res() res) {
         try {

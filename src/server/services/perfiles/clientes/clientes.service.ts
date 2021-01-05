@@ -309,76 +309,176 @@ export class ClientesService {
       }
     }
 
-    async representantesSesiones(representantes: any = []) {
-      try {
-        return await this.representanteModel.aggregate([
-          {
-            $match: {
-              _id: {
-                $nin: representantes
-              }
+  async representantesSesiones(representantes: any = []) {
+    try {
+      return await this.representanteModel.aggregate([
+        {
+          $match: {
+            _id: {
+              $nin: representantes
             }
-          },  {
-            $lookup: {
-              from: 'usuarios',
-              localField: 'usuario_id',
-              foreignField: '_id',
-              as: 'datos'
+          }
+        },  {
+          $lookup: {
+            from: 'usuarios',
+            localField: 'usuario_id',
+            foreignField: '_id',
+            as: 'datos'
+          }
+        },  {
+          $addFields: {
+            "datos": {
+              "$arrayElemAt": ["$datos", 0]
             }
-          },  {
-            $addFields: {
-              "datos": {
-                "$arrayElemAt": ["$datos", 0]
-              }
-            }
-          },  {
-            $project: {
-              datos: {
-                nombre_completo: 1,
-                imagen_url: 1
-              },
-              hijos: {
-                $filter: {
-                  input: "$hijos",
-                  as: "hijo",
-                  cond: {
-                    $eq: ["$$hijo.auditoria.estado", false]
-                  }
+          }
+        },  {
+          $project: {
+            datos: {
+              nombre_completo: 1,
+              imagen_url: 1
+            },
+            hijos: {
+              $filter: {
+                input: "$hijos",
+                as: "hijo",
+                cond: {
+                  $eq: ["$$hijo.auditoria.estado", false]
                 }
               }
             }
           }
-        ]);
-      } catch (error) {
-        throw error;
-      }
+        }
+      ]);
+    } catch (error) {
+      throw error;
     }
+  }
 
-    async buscaPorId(_id: string) {
-      return await this.representanteModel
-        .aggregate([
-          {
-            $match: {
-              _id: Types.ObjectId(_id)
-            }
-          },  {
-            $lookup: {
-              from: 'usuarios',
-              localField: 'usuario_id',
-              foreignField: '_id',
-              as: 'usuario'
-            }
-          },  {
-            $unwind: '$usuario'
-          },  {
-            $project: {
-              _id: 1,
-              usuario: {
-                nombre_completo: 1
-              }              
+  async representantesTareas(representantes: any = []) {
+    try {
+      return await this.representanteModel.aggregate([
+        {
+          $match: {
+            _id: {
+              $nin: representantes
             }
           }
-        ]);
+        },  {
+          $lookup: {
+            from: 'usuarios',
+            localField: 'usuario_id',
+            foreignField: '_id',
+            as: 'datos'
+          }
+        },  {
+          $addFields: {
+            "datos": {
+              "$arrayElemAt": ["$datos", 0]
+            }
+          }
+        },  {
+          $project: {
+            datos: {
+              nombre_completo: 1,
+              imagen_url: 1
+            },
+            hijos: {
+              $filter: {
+                input: "$hijos",
+                as: "hijo",
+                cond: {
+                  $eq: ["$$hijo.auditoria.estado", false]
+                }
+              }
+            }
+          }
+        }
+      ]);
+    } catch (error) {
+      throw error;
     }
+  }
 
+  async buscaPorId(_id: string) {
+    return await this.representanteModel
+    .aggregate([
+      {
+        $match: {
+          _id: Types.ObjectId(_id)
+        }
+      },  {
+        $lookup: {
+          from: 'usuarios',
+          localField: 'usuario_id',
+          foreignField: '_id',
+          as: 'usuario'
+        }
+      },  {
+        $unwind: '$usuario'
+      },  {
+        $project: {
+          _id: 1,
+          usuario: {
+            nombre_completo: 1,
+            usuario: 1
+          }              
+        }
+      }
+    ]);
+  }
+
+  async retornaRepresentantesHijos(estado: boolean = true) {
+    return await this.representanteModel
+    .aggregate([
+      {
+          $match: {
+            "auditoria.estado": estado
+          }
+      },  {
+        $unwind: '$hijos'
+      },  {
+          $match: {
+            "hijos.auditoria.estado": true
+          }
+      },  {
+          $group: {
+            _id: "$_id",
+            usuario_id: {
+              $first: "$usuario_id"
+            },
+            hijos: {
+              $push: "$hijos"
+            }            
+          }
+      },  {
+          $lookup: {
+            from: 'usuarios',
+            localField: 'usuario_id',
+            foreignField: '_id',
+            as: 'usuario'            
+          }
+      },  {
+          $project: {
+            hijos: 1,
+            usuario: {
+              nombre_completo: 1,
+              usuario: 1
+            }
+          }
+      },  {
+          $project: {
+            usuario: {
+              "$reduce":{
+                "input": "$usuario",
+                "initialValue": {},
+                "in": {
+                  "$mergeObjects": ["$$value", "$$this"]
+                }
+              }
+            },
+            hijos: 1
+          }
+      }
+    ]);
+  }
 }

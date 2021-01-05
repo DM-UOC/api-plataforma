@@ -15,6 +15,7 @@ import { ClientesService } from "../perfiles/clientes/clientes.service";
 import { ProfesoresService } from "../perfiles/profesores/profesores.service";
 import { CatalogosService } from "../catalogos/catalogos.service";
 import { Types } from "mongoose";
+import { TareaModel } from "src/server/models/tareas/tarea.model";
 
 @Injectable()
 export class NotificacionesService {
@@ -74,6 +75,61 @@ export class NotificacionesService {
             descripcion: sesion.descripcion,
             fecha_hora_inicio: sesion.fecha_hora_inicio,
             fecha_hora_final: sesion.fecha_hora_final
+          })
+        },
+        auditoria: {
+          estado: true,
+          fecha_ins: moment().utc().toDate()
+        }
+      }
+      // auditoria...
+      createNotificacioneDto.auditoria = {
+        estado: true,
+        fecha_ins: moment().utc().toDate()
+      }
+      // crea la notificacion...
+      return await createNotificacioneDto.save();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async creaNotificacionTarea(tarea: TareaModel, representanteID: string, secuencialID: string) {
+    try {
+      // configuración...
+      const { catalogos } = global.$config;
+      const { notificaciones } = catalogos;
+      const { tipoHijos } = notificaciones;      
+      // retornando la secuencia para la notificacion...
+      const notificacionID: number = await this.generaSecuencial(secuencialID); 
+      // objeto notificacion..
+      const createNotificacioneDto = new this.notificacionModel(); 
+      // datos de la notificacion...
+      // catalogos...
+      const catalogo = await this.catalogosService.retornaCatalogPorCodigo(tipoHijos.tipoTarea);
+      // profesor...
+      const profesor = await this.profesoresService.buscaPorId(tarea.profesor.id.toString());
+      // representante...
+      const representante = await this.clientesService.buscaPorId(representanteID);
+      // seteo de la notificacion...
+      createNotificacioneDto.catalogo._id = catalogo._id;
+      createNotificacioneDto.catalogo.descripcion = catalogo.descripcion;
+      createNotificacioneDto.profesor._id = profesor[0]._id;
+      createNotificacioneDto.profesor.nombres = profesor[0].usuario.nombre_completo;
+      createNotificacioneDto.representante._id = representante[0]._id;
+      createNotificacioneDto.representante.nombres = representante[0].usuario.nombre_completo;
+      createNotificacioneDto.descripcion = tarea.descripcion;
+      // cuerpo de la notificaicion...
+      createNotificacioneDto.cuerpo_notificacion = {
+        id: notificacionID,
+        title: tarea.descripcion,
+        body: tarea.observacion,
+        iconColor: catalogo.cadena2,
+        extra: {
+          data: JSON.stringify({
+            descripcion: tarea.descripcion,
+            observacion: tarea.observacion,
+            fecha_entrega: tarea.fecha_entrega
           })
         },
         auditoria: {

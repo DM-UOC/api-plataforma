@@ -5,6 +5,8 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { TareaModel } from 'src/server/models/tareas/tarea.model';
 import { PerfilesModule } from '../perfiles/perfiles.module';
 import { UsuariosModule } from '../usuarios/usuarios.module';
+import { LectivosTareasModule } from '../lectivos-tareas/lectivos.tareas.module';
+import { LectivosModule } from '../lectivos/lectivos.module';
 
 @Module({
   imports: [
@@ -17,7 +19,11 @@ import { UsuariosModule } from '../usuarios/usuarios.module';
         }
     ]),
     PerfilesModule,
-    UsuariosModule
+    UsuariosModule,
+    LectivosModule
+  ],
+  exports: [
+    TareasService
   ],
   controllers: [TareasController],
   providers: [TareasService]

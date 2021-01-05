@@ -5,9 +5,12 @@ import moment from "moment";
 import { ReferenciaDatosModel } from "../comuns/referencia.datos.model";
 import { ReferenciaUsuarioModel } from "../comuns/referencia.usuario.model";
 
-export class TareaParcialModel {
+export class LectivoTareaModel {
 
     readonly _id?: Types.ObjectId;
+
+    @prop({ _id: false, type: ReferenciaDatosModel })
+    parcial?: ReferenciaDatosModel;
 
     @prop({ _id: false, type: ReferenciaDatosModel })
     tarea?: ReferenciaDatosModel;
@@ -18,7 +21,7 @@ export class TareaParcialModel {
     @prop({ _id: false, type: ReferenciaUsuarioModel })
     alumno?: ReferenciaUsuarioModel;
 
-    @prop({ required: true, default: moment().utc().toDate() })
+    @prop({ default: null })
     fecha_entrega?: Date;
     
     @prop({ required: true, default: 0 })

@@ -4,7 +4,7 @@ import { Types } from "mongoose";
 export class ReferenciaUsuarioModel {
 
     @prop({ required: true })
-    _id?: Types.ObjectId;
+    id?: Types.ObjectId;
 
     @prop({ required: true, default: null })
     usuario?: string;

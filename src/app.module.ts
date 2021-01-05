@@ -12,6 +12,7 @@ import { SesionesModule } from './server/modules/sesiones/sesiones.module';
 import { NotificacionesModule } from './server/modules/notificaciones/notificaciones.module';
 import { SecuenciasModule } from './server/modules/secuencias/secuencias.module';
 import { TareasModule } from './server/modules/tareas/tareas.module';
+import { LectivosTareasModule } from './server/modules/lectivos-tareas/lectivos.tareas.module';
 
 @Module({
   imports: [
@@ -29,7 +30,9 @@ import { TareasModule } from './server/modules/tareas/tareas.module';
     ConferenciasModule, 
     SesionesModule, 
     NotificacionesModule, 
-    SecuenciasModule, TareasModule
+    SecuenciasModule, 
+    TareasModule, 
+    LectivosTareasModule
   ]
 })
 export class AppModule {}
