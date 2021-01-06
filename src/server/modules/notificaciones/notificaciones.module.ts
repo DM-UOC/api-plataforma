@@ -7,6 +7,7 @@ import { NotificacionModel } from '../../../server/models/notificaciones/notific
 import { SecuenciasModule } from '../secuencias/secuencias.module';
 import { PerfilesModule } from '../perfiles/perfiles.module';
 import { CatalogosModule } from '../catalogos/catalogos.module';
+import { UsuariosModule } from '../usuarios/usuarios.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { CatalogosModule } from '../catalogos/catalogos.module';
     ]),
     SecuenciasModule,
     PerfilesModule,
-    CatalogosModule
+    CatalogosModule,
+    UsuariosModule
   ],
   exports: [
     NotificacionesService

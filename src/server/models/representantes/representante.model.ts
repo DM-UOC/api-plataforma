@@ -5,6 +5,8 @@ import { HijoModel } from "./hijo.model";
 
 export class RepresentanteModel {
 
+    readonly _id: Types.ObjectId;
+    
     @prop({ required: true })
     public usuario_id?: Types.ObjectId;
 

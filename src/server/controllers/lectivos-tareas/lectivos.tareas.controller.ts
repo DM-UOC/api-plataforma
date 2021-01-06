@@ -8,6 +8,11 @@ export class LectivosTareasController {
 
   constructor(private readonly lectivosTareasService: LectivosTareasService) {}
 
+  @Get()
+  findAll() {
+    return this.lectivosTareasService.findAll();
+  }
+
   @Post()
   create(@Body() createLectivosTareaDto: CreateLectivosTareaDto) {
     return this.lectivosTareasService.create(createLectivosTareaDto);
@@ -24,6 +29,17 @@ export class LectivosTareasController {
     }
   }
 
+  @Get('representantes')
+  retornaRepresentatesSesion(@Query() query) {
+    try {
+      const { id } = query;
+      // return...
+      return this.lectivosTareasService.retornaParticipantesTarea(id);      
+    } catch (error) {
+      return error;
+    }
+  }
+
   @Get('representantes/lista')
   retornaListaRepresentantesSesion(@Query() query) {
     try {
@@ -35,17 +51,11 @@ export class LectivosTareasController {
     }
   }
 
-  @Get()
-  findAll() {
-    return this.lectivosTareasService.findAll();
-  }
-
-  @Get('representantes')
-  retornaRepresentatesSesion(@Query() query) {
+  @Get('representante/lista/:usuario')
+  retornaTareasRepresentantePorId(@Param('usuario') usuario: string) {
     try {
-      const { id } = query;
       // return...
-      return this.lectivosTareasService.retornaParticipantesTarea(id);      
+      return this.lectivosTareasService.retornaTareasRepresentantePorId(usuario);
     } catch (error) {
       return error;
     }

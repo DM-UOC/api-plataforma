@@ -22,9 +22,9 @@ export class NotificacionModel {
             descripcion: ''
         }
     })
-    profesor: {
-        _id: Types.ObjectId;
-        nombres: string;
+    profesor?: {
+        _id?: Types.ObjectId;
+        nombres?: string;
     };
 
     @prop({ required: true, default: {
@@ -32,9 +32,9 @@ export class NotificacionModel {
             descripcion: ''
         }
     })
-    representante: {
-        _id: Types.ObjectId;
-        nombres: string;
+    representante?: {
+        _id?: Types.ObjectId;
+        nombres?: string;
     };
 
     @prop({ required: true, trim: true })

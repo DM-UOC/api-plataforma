@@ -14,6 +14,7 @@ import { ClientesService } from '../perfiles/clientes/clientes.service';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import { ProfesorModel } from "src/server/models/profesores/profesor.model";
 import { ProfesoresService } from "../perfiles/profesores/profesores.service";
+import { RepresentanteModel } from "src/server/models/representantes/representante.model";
 
 @Injectable()
 export class SesionesService {
@@ -83,6 +84,64 @@ export class SesionesService {
                     $eq: ["$$rep.auditoria.estado", estado]
                   }
                 }
+              }
+            }
+          }
+        ]);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async retornaSesionesRepresentantePorId(usuario: string, estado: boolean = true) {
+    try {
+      // retornamos el id del usuario...
+      const usuarioModel: UsuarioModel = await this.usuariosService.retornaUsuario(usuario);
+      // buscamos el id del profesor...
+      const representanteModel: RepresentanteModel = await this.clientesService.findOne(usuarioModel._id.toString());
+      // buscamos las sesiones que tenga el profesor...
+      // return...
+      return await this.sesionesModel
+        .aggregate([
+          {
+            $match: {
+              "auditoria.estado": estado
+            }
+          },  {
+            $unwind: "$representantes"
+          },  {
+            $match: {
+              "representantes.representante_id": representanteModel._id,
+              "representantes.auditoria.estado": estado
+            }
+          },  {
+            $lookup: {
+              from: 'profesores',
+              localField: 'profesor_id',
+              foreignField: '_id',
+              as: 'profesor'              
+            }
+          },  {
+            $unwind: "$profesor"
+          },  {
+            $lookup: {
+              from: 'usuarios',
+              localField: 'profesor.usuario_id',
+              foreignField: '_id',
+              as: 'profesor'              
+            }
+          },  {
+            $unwind:  "$profesor"
+          },  {
+            $project: {
+              fecha_hora_inicio: 1,
+              fecha_hora_final: 1,
+              descripcion: 1,
+              observacion: 1,
+              profesor_id: 1,
+              profesor: {
+                _id: 1,
+                nombre_completo: 1
               }
             }
           }

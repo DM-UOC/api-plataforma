@@ -6,6 +6,7 @@ import { LectivoTareaModel } from 'src/server/models/lectivos-tareas/lectivo.tar
 import { PerfilesModule } from '../perfiles/perfiles.module';
 import { TareasModule } from '../tareas/tareas.module';
 import { NotificacionesModule } from '../notificaciones/notificaciones.module';
+import { UsuariosModule } from '../usuarios/usuarios.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { NotificacionesModule } from '../notificaciones/notificaciones.module';
     ]),
     PerfilesModule,
     TareasModule,
-    NotificacionesModule
+    NotificacionesModule,
+    UsuariosModule
   ],
   exports: [
     LectivosTareasService

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Query } from '@nestjs/common';
 import { NotificacionesService } from '../../services/notificaciones/notificaciones.service';
 import { CreateNotificacioneDto } from '../../models/notificaciones/dto/create-notificacione.dto';
 import { UpdateNotificacioneDto } from '../../models/notificaciones/dto/update-notificacione.dto';
@@ -22,6 +22,12 @@ export class NotificacionesController {
   @Get('/representante/:id')
   encontrarPorRepresentante(@Param('id') id: string) {
     return this.notificacionesService.encontrarPorRepresentante(id);
+  }
+
+  @Get('/representante/lista/:usuario')
+  encontrarListaPorRepresentanteId(@Param('usuario') usuario: string) {
+    // return...
+    return this.notificacionesService.retornaNotificacionesRepresentantePorId(usuario);
   }
 
   @Get(':id')

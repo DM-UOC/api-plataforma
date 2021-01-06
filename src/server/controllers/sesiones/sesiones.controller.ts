@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, Query, Req } from '@nestjs/common';
 import { SesionesService } from '../../services/sesiones/sesiones.service';
 import { SesionesModel } from 'src/server/models/sesiones/sesion.model';
+import { query } from 'express';
 
 @Controller('sesiones')
 export class SesionesController {
@@ -59,6 +60,17 @@ export class SesionesController {
       const { sesionID } = query;
       // return...
       return this.sesionesService.retornaListaRepresentantesSesion(sesionID);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Get('/representante')
+  retornaListaSesionesRepresentantePorId(@Query() query) {
+    try {
+      const { usuario } = query;
+      // return...
+      return this.sesionesService.retornaSesionesRepresentantePorId(usuario);
     } catch (error) {
       return error;
     }

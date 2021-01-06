@@ -481,4 +481,11 @@ export class ClientesService {
       }
     ]);
   }
+
+  async findOne(usuarioId: string, estado: boolean = true) {
+    return await this.representanteModel.findOne({
+      usuario_id: Types.ObjectId(usuarioId)
+    });
+  }
+
 }

@@ -16,12 +16,16 @@ import { ProfesoresService } from "../perfiles/profesores/profesores.service";
 import { CatalogosService } from "../catalogos/catalogos.service";
 import { Types } from "mongoose";
 import { TareaModel } from "src/server/models/tareas/tarea.model";
+import { UsuariosService } from "../usuarios/usuarios.service";
+import { UsuarioModel } from "src/server/models/usuarios/usuario.model";
+import { RepresentanteModel } from "src/server/models/representantes/representante.model";
 
 @Injectable()
 export class NotificacionesService {
 
   constructor(
     @InjectModel(NotificacionModel) private readonly notificacionModel: ReturnModelType<typeof NotificacionModel>,
+    private readonly usuariosService: UsuariosService,
     private readonly secuenciasService: SecuenciasService,
     private readonly clientesService: ClientesService,
     private readonly profesoresService: ProfesoresService,
@@ -205,4 +209,17 @@ export class NotificacionesService {
       }
     ]);
   }
+
+  async retornaNotificacionesRepresentantePorId(usuario: string, estado: boolean = true) {
+      // retornamos el id del usuario...
+      const usuarioModel: UsuarioModel = await this.usuariosService.retornaUsuario(usuario);
+      // buscamos el id del profesor...
+      const representanteModel: RepresentanteModel = await this.clientesService.findOne(usuarioModel._id.toString());
+      // devolvelvemos las notificaciones del representante...
+      return await this.notificacionModel.find({
+        "representante._id": representanteModel._id,
+        "auditoria.estado": estado
+      });
+  }
+
 }

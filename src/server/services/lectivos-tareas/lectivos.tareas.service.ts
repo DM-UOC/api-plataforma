@@ -13,6 +13,9 @@ import { ClientesService } from '../perfiles/clientes/clientes.service';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import { TareasService } from '../tareas/tareas.service';
 import { TareaModel } from 'src/server/models/tareas/tarea.model';
+import { UsuarioModel } from "src/server/models/usuarios/usuario.model";
+import { RepresentanteModel } from "src/server/models/representantes/representante.model";
+import { UsuariosService } from "../usuarios/usuarios.service";
 
 @Injectable()
 export class LectivosTareasService {
@@ -21,7 +24,8 @@ export class LectivosTareasService {
     @InjectModel(LectivoTareaModel) private readonly lectivoTareaModel: ReturnModelType<typeof LectivoTareaModel>,
     private readonly clientesService: ClientesService,
     private readonly tareasService: TareasService,
-    private readonly notificacionesService: NotificacionesService
+    private readonly notificacionesService: NotificacionesService,
+    private readonly usuariosService: UsuariosService
   ) {}
   
   create(createLectivosTareaDto: CreateLectivosTareaDto) {
@@ -214,4 +218,42 @@ export class LectivosTareasService {
     }
   }
 
+  async retornaTareasRepresentantePorId(usuario: string, estado: boolean = true) {
+    // retornamos el id del usuario...
+    const usuarioModel: UsuarioModel = await this.usuariosService.retornaUsuario(usuario);
+    // buscamos el id del profesor...
+    const representanteModel: RepresentanteModel = await this.clientesService.findOne(usuarioModel._id.toString());
+    // devolvelvemos las notificaciones del representante...
+    return await this.lectivoTareaModel.aggregate([
+      {
+        $match: {
+          "representante.id": representanteModel._id,
+          "auditoria.estado": true          
+        }
+      },  {
+        $lookup: {
+          from: 'tareas',
+          localField: 'tarea.id',
+          foreignField: '_id',
+          as: 'tarea'          
+        }
+      },  {
+        $unwind: "$tarea"
+      },  {
+        $project: {
+          calificacion: 1,
+          tarea: {
+            fecha_entrega: 1,
+            descripcion: 1,
+            observacion: 1,
+            profesor: {
+              nombres: 1,
+              usuario: 1
+            }
+          }          
+        }
+      }
+    ]);
+  }
+  
 }
