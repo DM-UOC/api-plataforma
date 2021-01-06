@@ -40,6 +40,28 @@ Este servicio permite ejecutar nodejs
 
 El gráfico superior muestra PM2 ya ejecutado y en espera de comunicación desde la capa del cliente.
 
+## 4) Levantar el servicio Peerjs
+
+### 1) Instalar en el servidor
+```bash
+# Comando para instalar peerjs a nivel global
+$ npm i -g peerjs
+```
+
+### 2) Ejecutar el servidor peerjs
+```bash
+# Comando para ejecutar peerjs
+$  peerjs --port 3001
+```
+Este comando indica que se ejecutará peerjs en el puerto 3001. La API sirve para establecer comunicación P2P entre dos puntos.
+
+Ejecutado el comando enviará el siguiente mensaje:
+
+```bash
+# mensaje enviado por peerjs indicando que el servicio está siendo ejecutado
+Started PeerServer on ::, port: 3001, path: / (v. 0.6.1)
+```
+
 ## Repositorio
 
 Todo el código fuente se encuetra en:

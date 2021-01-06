@@ -22,6 +22,9 @@ export class LetivoParcialModel {
     @prop({ _id: false, type: ReferenciaDatosModel })
     parcial?: ReferenciaDatosModel;
 
+    @prop({ trim: true, max: 500 })
+    observacion?: string;
+
     @prop({ id: false, type: AuditoriaModel })
     auditoria: AuditoriaModel;
 
